@@ -50,11 +50,64 @@ jobs:
       score: 7.5
       rationale: "Strong opportunity; current alternatives don't connect learning to live situations; lower than Job 1 because failure here is less immediately visible"
 
+  - id: in-context-activation
+    title: "Invoke thinking-partner support without switching away from where the work lives"
+    job_story: >
+      When I am working inside a team's project — reviewing artefacts, prepping for a
+      session, observing a pattern — I want to invoke a thinking-partner lens without
+      switching to a separate coaching tool, so I can think through what I'm observing
+      while the triggering context is still in front of me.
+    dimensions:
+      functional: "Invoke /coach-buddy from any project; thinking-partner capability available where the work is"
+      emotional: "Feel grounded and continuous — coaching flows from the work, not from a separate activity I retreat to"
+      social: "Coaching practice feels integrated, not bolted on"
+    four_forces:
+      push: "Switching to a dedicated coaching project means describing the situation from memory; artefacts that prompted the thinking are no longer visible; context is lost before the conversation starts"
+      pull: "Invoke coaching while still looking at the sprint board, the decision doc, what triggered the thinking"
+      anxiety: "Skill in a team project might deliver reduced capability without reference files; quality unpredictable; not knowing what you're getting"
+      habit: "Opens a separate coaching project, reconstructs the situation from memory, or thinks through it alone"
+    opportunity:
+      importance: medium-high
+      current_satisfaction: low
+      score: 7.0
+      rationale: "Relevant for coaches who work in Claude Chat team projects; context-switching cost is real and continuous; not universal (only if team projects are already in use)"
+    validated: false
+    note: "Emerged from real use of Slice 01 (2026-05-12). Not yet validated with additional coaches."
+
+  - id: portable-across-teams
+    title: "Install thinking-partner support into any team project with minimal effort"
+    job_story: >
+      When I am coaching multiple teams across separate projects,
+      I want to add thinking-partner capability to any team's project with a single
+      install step, so each team has access to the coaching lens without me having
+      to build and maintain separate dedicated tools per engagement.
+    dimensions:
+      functional: "One install command or simple setup; consistent behaviour across all team projects"
+      emotional: "Feel scalable rather than spread thin; the toolkit travels with me"
+      social: "Coach who brings structured thinking-partner support to every engagement; differentiated practice"
+    four_forces:
+      push: "Per-team setup is high-friction; maintaining multiple copies is unsustainable; inconsistency across teams erodes trust in the tool"
+      pull: "One install, any project has the capability; setup cost does not scale with number of teams"
+      anxiety: "Quality might vary if reference files aren't installed per-team; coach can't guarantee a consistent experience across all team projects"
+      habit: "Uses one dedicated project for everything (constant context switching), or manually duplicates setup, or doesn't offer the tool to teams"
+    opportunity:
+      importance: medium
+      current_satisfaction: low
+      score: 6.5
+      rationale: "Aspirational — not yet an active pain, but the clear direction of travel. J5 is a distribution job, not a coaching experience job. Falls out of the same architectural work as J3."
+    validated: false
+    note: "Emerged from mental model shift (2026-05-12). Not yet in use. Prioritise J3 (in-context-activation) first."
+
 tension_note: >
-  The two jobs want fundamentally different orientations from the tool.
-  Job 1 (thinking-partner) wants the tool to follow the coach's lead — serve the situation, not introduce new material.
-  Job 2 (growth-vehicle) wants the tool to surface new things — expand the coach's horizon.
-  If growth-vehicle leaks into thinking-partner moments, it disrupts focus at high stakes.
-  If thinking-partner dominates all interactions, growth never happens.
-  The architecture must resolve this explicitly. Every architectural decision affecting mode, attribution,
-  or orchestration transparency should be evaluated against both jobs.
+  J1 vs J2: The two coaching experience jobs want different orientations.
+  J1 (thinking-partner) wants the tool to follow — serve the situation, not introduce new material.
+  J2 (growth-vehicle) wants the tool to surface — expand the coach's horizon.
+  Resolved by ADR-003/004/005: mode management, ask-rather-than-assume, situation-focus tiebreaker.
+
+  J3 vs J1/J2: In-context activation doesn't change what good coaching looks like — it changes
+  where the coach accesses it. ADRs stand. The gap is deployment: SKILL.md must be self-sufficient
+  without reference files. Quality degrades gracefully (good → reliably sharp) not catastrophically.
+
+  J4 (team as user): Explicitly out of scope. Coach is sole user.
+
+  J5 vs J3: J5 is a distribution job. It falls out of solving J3. Aspirational, not yet validated.

@@ -71,7 +71,7 @@ When a signal is detected, offer: "I can go deeper on [Name] if that would be us
 Attribution is additive: placed at the end of the relevant observation, never substituted for the substantive response.
 
 ## Frameworks
-Apply as relevant, not exhaustively.
+Apply as relevant, not exhaustively. Reference files (references/frameworks/) provide deeper coaching-specific application guidance when available. If they are not present, draw on the descriptions below and your own knowledge of each framework — quality degrades gracefully, not catastrophically.
 
 **Primary lenses** — reach for these first:
 - **Cynefin (Snowden)** — complexity domains. Use when the situation's nature is unclear or contested.
