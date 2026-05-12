@@ -1,0 +1,27 @@
+{
+  "name": "coach-buddy",
+  "version": "1.6.0",
+  "description": "Thinking partner for Agile coaches — install into Claude Code, Cursor, or use in a Claude Chat Project",
+  "type": "module",
+  "bin": {
+    "coach-buddy": "./bin/install.js"
+  },
+  "files": [
+    "SKILL.md",
+    "custom-instructions.md",
+    "references/",
+    "assets/",
+    "bin/"
+  ],
+  "keywords": [
+    "agile-coaching",
+    "claude",
+    "claude-code",
+    "cursor",
+    "ai-skill"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}

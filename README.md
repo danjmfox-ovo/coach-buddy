@@ -16,10 +16,10 @@ These are in tension. The architecture resolves it explicitly. See [ADRs](docs/p
 ### Quick install (Claude Code / Cursor)
 
 ```bash
-npx skills add danjmfox-ovo/coach-buddy
+npx coach-buddy
 ```
 
-Auto-detects your agent and sets everything up.
+Detects your tool (Claude Code or Cursor), copies all files to the right skills directory, and prints activation instructions. Add `--global` to install at user level rather than project level. Add `--force` to overwrite an existing install.
 
 ### Claude Chat Project — dedicated coaching tool
 
@@ -115,7 +115,7 @@ You don't need clean data. A rough description of what feels off is enough to st
 | [`custom-instructions.md`](custom-instructions.md) | Lean always-on layer — use as custom instructions in a team project |
 | [`references/frameworks/`](references/frameworks/) | Coaching-specific framework depth: complexity, work layers, teams, development, tensions |
 | [`assets/calibration-canvas.md`](assets/calibration-canvas.md) | Template for capturing mode, context, and stakes at conversation open |
-| [`docs/product/architecture/`](docs/product/architecture/) | Six ADRs documenting architectural decisions |
+| [`docs/product/architecture/`](docs/product/architecture/) | Nine ADRs documenting architectural decisions |
 
 ---
 
@@ -126,6 +126,19 @@ Cynefin (Snowden) · Four work layers (Shorrock) · Team Topologies (Skelton, Pa
 
 **Secondary lenses** (available on interest signal):
 Flow metrics · Schwartz · Safety-II (Hollnagel) · Beyond Budgeting · Somatic/systemic awareness (van der Kolk, Menakem) · Power/status/inclusion · Document types
+
+---
+
+## Sources
+
+**Structural inspiration**
+
+- [johnpcutler/change-lenses-and-actions](https://github.com/johnpcutler/change-lenses-and-actions) — the SKILL.md + project-knowledge pattern that this tool's architecture is built on
+- [nWave-ai/nWave](https://github.com/nWave-ai/nWave) — the wave-based development methodology used to build and iterate this tool; the documented upgrade path if Coach Buddy outgrows the Cutler-pattern
+
+**Framework authors**
+
+The frameworks referenced in this tool are the work of their respective authors. Attribution is applied on first use — see the attribution rules in [SKILL.md](SKILL.md) and the [framework reference files](references/frameworks/).
 
 ---
 
