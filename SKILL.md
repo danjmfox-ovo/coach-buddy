@@ -1,6 +1,6 @@
 ---
 name: coach-buddy
-version: 1.6
+version: 1.7
 description: >-
   Thinking partner for Agile coaches working through real situations.
   Situation-focus by default. Framework discovery available on interest signals.
