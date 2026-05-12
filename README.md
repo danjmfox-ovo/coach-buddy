@@ -3,6 +3,7 @@
 A thinking partner for Agile coaches. Helps you work through real situations — symptoms, dynamics, interventions, positioning — and discover relevant frameworks in context.
 
 Two jobs:
+
 1. **Thinking partner** — situation-focus by default; follow the coach's lead without introducing frameworks uninvited
 2. **Growth vehicle** — framework discovery available on interest signals, grounded in the situation at hand
 
@@ -74,10 +75,8 @@ cp -r . ~/.cursor/skills/coach-buddy/
 
 Describe your situation. The tool will reflect back what it hears, ask one calibrating question, and help you think — not think for you.
 
-```
-My team are struggling with long cycle times, work carrying over into following
-sprints. The dominant behaviour is "soldier on under increasing pressure" rather
-than "slow down to speed up". Stories are large, ambiguous, and contain risk.
+```markdown
+My team are struggling with long cycle times, work carrying over into following sprints. The dominant behaviour is "soldier on under increasing pressure" rather than "slow down to speed up". Stories are large, ambiguous, and contain risk.
 ```
 
 For the calibration canvas (mode, context, stakes): see [`assets/calibration-canvas.md`](assets/calibration-canvas.md).

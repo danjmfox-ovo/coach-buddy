@@ -1,5 +1,5 @@
 # Feature Delta: coach-buddy-architecture
-# Waves: DISCUSS + DESIGN (2026-05-12)
+# Waves: DISCUSS + DESIGN + DISTILL (2026-05-12)
 # Density: lean + ask-intelligent
 
 ---
@@ -394,4 +394,83 @@ Greenfield configuration architecture. No existing components.
 - Exact phrasing list for coaching redirects in SKILL.md (DELIVER task)
 - Calibration canvas format (DELIVER task)
 - How to handle the existing system prompt: migrate content into SKILL.md + reference files vs. replace entirely
+
+---
+
+## Wave: DISTILL / [REF] Scenario List
+
+> Reconciliation: DISCUSS ↔ DESIGN — 0 contradictions. All four underdetermined flags resolved in ADR-002/004/005/006.
+> Adaptation: configuration-only project. No code scaffolds. `.feature` file = manual conversation test script. Every scenario is `@real-io` by default.
+> Slice scope: Slice 01 only (thinking-partner / situation-focus). Slice 02 scenarios (interest detection, mode redirects) deferred.
+
+| Scenario | Tags | Story |
+|----------|------|-------|
+| Coach describes situation — no unrequested framework | `@walking_skeleton` `@real-io` `@US-1` | S1 |
+| Tool leads with observation not question on first turn | `@walking_skeleton` `@real-io` `@US-1` | S1 |
+| Coach explicitly requests framework — attribution correct | `@real-io` `@US-2` | S2 |
+| Framework not re-attributed on second mention | `@real-io` `@US-2` | S2 |
+| Tool transitions to reflection after 3-4 exchanges | `@real-io` `@US-1` | S3 |
+| ER-001 regression guard — calibration loop exit | `@error` | ER-001 |
+| ER-002 regression guard — observation before question | `@error` | ER-002 |
+| ER-004 regression guard — framework vocabulary requires attribution on first mention | `@error` | ER-004 |
+| Stakes stated as consequential — tool holds situation-focus | `@real-io` `@US-1` | S4 |
+
+---
+
+## Wave: DISTILL / [REF] WS Strategy
+
+**Strategy C — Real local (all real-IO)**
+
+Rationale: the system under test is a configured Claude Chat Project. There is no InMemory double for the underlying model. Every scenario exercises the real system end-to-end by design. The walking skeleton is manually executed.
+
+Walking skeleton = Scenarios tagged `@walking_skeleton`: two scenarios prove the core architectural claim — one situation-focus conversation, symptoms in, named dynamic out, no unrequested framework.
+
+---
+
+## Wave: DISTILL / [REF] Adapter Coverage
+
+| Driven Adapter | Adapter Type | Covered by |
+|----------------|-------------|------------|
+| Claude Chat Project (conversational turn) | Driving — inbound | All `@real-io` scenarios |
+
+No driven adapters in Slice 01 (no external integrations, no outbound side-effects).
+
+---
+
+## Wave: DISTILL / [REF] Scaffolds
+
+| File | Status | Notes |
+|------|--------|-------|
+| `tests/acceptance/coach-buddy-architecture/walking-skeleton.feature` | Created | Manual execution only; no pytest runner |
+
+No `__SCAFFOLD__` markers needed — no code under test.
+
+---
+
+## Wave: DISTILL / [REF] Test Placement
+
+`tests/acceptance/coach-buddy-architecture/`
+
+Precedent: acceptance tests are the primary artefact for configuration-only projects. No unit or integration test directories needed at this stage.
+
+---
+
+## Wave: DISTILL / [REF] Driving Adapter Coverage
+
+| Driving Surface (from DESIGN) | Covered by scenario |
+|-------------------------------|---------------------|
+| Coach turn (Claude Chat Project conversation) | All scenarios |
+| Calibration input (conversation open) | `@walking_skeleton` scenario 1, ER-001 guard |
+
+---
+
+## Wave: DISTILL / [REF] Pre-Requisites
+
+| Dependency | Source | Status |
+|------------|--------|--------|
+| SKILL.md installed as custom instructions | DESIGN deliverable | Done (v1.1) |
+| Reference files uploaded as project knowledge | DESIGN deliverable | Done |
+| Claude Chat Project accessible | DEVOPS / installer | Done |
+| Slice 01 user stories (US-1, US-2) | DISCUSS | Done |
+| ADR-002/004/005 (D2/D4/D5 resolved) | DESIGN | Done |
 
