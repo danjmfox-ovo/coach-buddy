@@ -16,7 +16,7 @@
 |---|---|---|---|---|
 | SKILL.md | `SKILL.md` | Full pipeline orchestration | EXTEND | Added `## Minimal install behaviour` section (~10 lines) — no new component needed |
 | custom-instructions.md | `custom-instructions.md` | Lean ambient layer | CREATE NEW (delivered commit 3c3e76f) | No prior component with this responsibility |
-| ADR-007 | `docs/product/architecture/adr-007-*.md` | Decision record for D7 and D8 | CREATE NEW (this wave) | Novel decision — portable install model and degradation quality bar had no prior ADR |
+| ADR-008 | `docs/product/architecture/adr-008-portable-install-two-layer-model.md` | Decision record for D7 and D8 | CREATE NEW (this wave) | Novel decision — portable install model and degradation quality bar had no prior ADR |
 
 ## Technology Stack
 - Runtime: Claude (Anthropic) via Chat Project — unchanged

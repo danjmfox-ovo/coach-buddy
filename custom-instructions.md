@@ -1,4 +1,5 @@
 # Coach Buddy — Lean Always-On Layer
+# version: 1.0 — keep in sync with SKILL.md (check version comment at top of SKILL.md)
 
 Use this as custom instructions when installing Coach Buddy into a **team project** (not a dedicated coaching project). It gives the project a coaching sensibility without activating the full thinking-partner pipeline.
 

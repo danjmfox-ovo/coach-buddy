@@ -97,9 +97,28 @@ Write a Claude Code–style skill file that activates the pipeline. Available in
 - Self-sufficient SKILL.md means partial deploys are predictably useful, not unpredictably broken
 
 **Negative / Watch items**:
-- Two files to manage per install — risk of version drift between `custom-instructions.md` and `SKILL.md` in the wild; no automated sync available in Chat Projects
+- Two files to manage per install — risk of version drift between `custom-instructions.md` and `SKILL.md` in the wild; no automated sync available in Chat Projects. Mitigation: both files carry a `# version:` comment at the top; coaches should match versions when updating.
 - Discovery depends on the inline hint in `custom-instructions.md` — coaches who paste custom instructions without reading may miss `/coach-buddy`; monitor if usage data suggests discoverability is a problem (D9)
 - SKILL.md as Project Knowledge is not access-controlled — any project participant can read it; intentional (transparency principle, ADR-001) but worth noting
+
+### Keeping your install current
+
+When a new version of Coach Buddy is released:
+1. Check the `version:` frontmatter in `SKILL.md` (e.g. `version: 1.6`)
+2. Check the `# version:` comment at the top of `custom-instructions.md`
+3. If they differ, re-upload the newer `SKILL.md` to Project Knowledge **and** update the Custom Instructions field with the new `custom-instructions.md` in the same session
+4. Start a fresh conversation after updating
+
+Partial updates (SKILL.md without `custom-instructions.md`, or vice versa) are the primary version drift risk — the two layers may encode conflicting attribution or language rules.
+
+### Post-deployment watch items (30-day review)
+
+Track after Slice 03 validation runs:
+- **Adoption rate**: How many coaches use the portable install vs. the dedicated coaching project?
+- **Minimal-install quality signals**: Do coaches using minimal install (no reference files) rate conversations as "Better" or "Much better"?
+- **Version drift incidents**: Any reports of coaching sensibility mismatch between `custom-instructions.md` and `SKILL.md`?
+- **Discoverability**: Do coaches find `/coach-buddy` without being told? Log any "how do I activate the full pipeline?" questions.
+- **30-day decision point**: If minimal-install self-report falls below "Better" in >50% of sessions, escalate degradation quality bar (D8) and consider richer built-in lens descriptions in SKILL.md.
 
 ---
 

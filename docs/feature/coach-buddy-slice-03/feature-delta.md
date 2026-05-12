@@ -377,3 +377,104 @@ None. This is a configuration architecture. No external integrations, no outboun
 - **D9 (Discovery hint)**: `custom-instructions.md` currently hints `/coach-buddy` availability. Sufficient for v1. Revisit if usage data shows coaches not finding the invocation command. No action needed before DISTILL.
 - **Version drift**: If `custom-instructions.md` and `SKILL.md` are updated independently across multiple team project installs, they may drift. No automated sync is available in Claude Chat Projects. Mitigation: document in README that both files should be refreshed together. Deferred to post-Slice 03 if it surfaces as a real problem.
 - **SKILL.md activation mechanism**: `/coach-buddy` is a soft convention (model reads SKILL.md when name appears in message), not a registered command. Works reliably but depends on model behaviour. Flag if invocation becomes unreliable.
+
+---
+
+## Wave: DISTILL / [REF] Scenario List
+
+| Scenario | Tags | Story | Slice | File |
+|----------|------|-------|-------|------|
+| Lean always-on layer activates without triggering full pipeline | `@walking_skeleton @real-io @US-1` | S1 | 03a | walking-skeleton.feature |
+| /coach-buddy invocation activates full thinking-partner pipeline | `@walking_skeleton @real-io @US-1` | S1 | 03a | walking-skeleton.feature |
+| Full pipeline does not activate for ordinary messages | `@real-io @US-1` | S1 | 03a | walking-skeleton.feature |
+| Tool leads with observation before any question | `@real-io @US-2` | S2 | 03b | walking-skeleton.feature |
+| Coaching stays grounded when team artefacts are mentioned | `@real-io @US-2` | S2 | 03b | walking-skeleton.feature |
+| Regression guard — ER-001 in team project context | `@error @US-2` | S2 | 03b | walking-skeleton.feature |
+| Regression guard — ER-002 in team project context | `@error @US-2` | S2 | 03b | walking-skeleton.feature |
+| Minimal install names a dynamic beyond restating coach's words | `@real-io @US-3` | S3 | 03c | walking-skeleton.feature |
+| Minimal install includes attribution from built-in lens list | `@real-io @US-3` | S3 | 03c | walking-skeleton.feature |
+| Minimal install offers an advancing question | `@real-io @US-3` | S3 | 03c | walking-skeleton.feature |
+| Minimal install does not surface an error or degraded-mode warning | `@error @US-3` | S3 | 03c | walking-skeleton.feature |
+| Minimal install conversation is useful — coach self-report | `@real-io @US-3` | S3 | 03c | walking-skeleton.feature |
+| Pre-run install check (≤10 minutes, 2 steps) | `@real-io @US-1` | S1 | 03a | test-script.md |
+| Full coaching conversation in team project context | `@real-io @US-2` | S2 | 03b | test-script.md |
+| In-context activation with team artefacts | `@real-io @US-2` | S2 | 03b | test-script.md |
+| Graceful degradation in minimal install | `@real-io @US-3` | S3 | 03c | test-script.md |
+| Regression — ER-001 in team project variant | `@error` | — | — | test-script.md |
+| Regression — ER-002 in team project variant | `@error` | — | — | test-script.md |
+| Regression — ER-004 vocabulary attribution via /coach-buddy | `@error` | — | — | test-script.md |
+
+**Error scenario ratio**: 5 / 19 = 26% (below 40% target — acceptable for a validation slice where primary risk is "tool is broken or unhelpful", not "tool has complex failure modes")
+
+---
+
+## Wave: DISTILL / [REF] WS Strategy
+
+**Strategy C — Real local (adapted for configuration architecture)**
+
+All scenarios run against a real Claude Chat team project with the portable install in place. No simulation of the underlying Claude model — behaviour emerges from real model responses.
+
+Justification: matches Slices 01-02 precedent; Coach Buddy is a configuration architecture with no code to mock; the only meaningful "real" is a real conversation with a real model.
+
+**Environment matrix** (adapted from DEVOPS default — no DEVOPS wave run):
+
+| Environment | Scenarios | Notes |
+|-------------|-----------|-------|
+| Clean install | All Story 1 scenarios | Fresh team project, no prior conversations |
+| Existing team project (with knowledge files) | Story 2 scenarios | Real team artefacts in Project Knowledge |
+| Minimal install (no reference files) | All Story 3 scenarios | Explicit: no references/ uploaded |
+
+---
+
+## Wave: DISTILL / [REF] Adapter Coverage Table
+
+*Adapted for configuration architecture — "adapters" are the conversational interfaces, not software components.*
+
+| Adapter / Driving Port | @real-io scenario | Covered by |
+|------------------------|-------------------|------------|
+| `custom-instructions.md` (lean always-on layer) | YES | "Lean always-on layer activates without triggering full pipeline" |
+| `SKILL.md` as Project Knowledge (full pipeline) | YES | "/coach-buddy invocation activates full thinking-partner pipeline" |
+| `/coach-buddy` invocation convention | YES | All @walking_skeleton scenarios + test-script.md Scenarios 1-3 |
+| Minimal install (SKILL.md without reference files) | YES | All @US-3 scenarios + test-script.md Scenario 3 |
+| Reference files (optional enrichment layer) | N/A | Not a separate adapter — presence/absence covered by @US-3 scenarios |
+
+Zero uncovered adapters.
+
+---
+
+## Wave: DISTILL / [REF] Scaffolds
+
+**None.** This is a configuration architecture. There is no production code to scaffold.
+
+Mandate 7 (RED-ready scaffolding) does not apply: no module imports, no AssertionError stubs, no DELIVER TDD cycle for code. Validation is entirely through real conversations.
+
+---
+
+## Wave: DISTILL / [REF] Test Placement
+
+`tests/acceptance/coach-buddy-slice-03/`
+
+Precedent: `tests/acceptance/coach-buddy-architecture/` (Slice 01) and `tests/acceptance/coach-buddy-slice-02/` (Slice 02). Consistent slice-numbered directory. No sub-directory nesting needed for this slice size.
+
+---
+
+## Wave: DISTILL / [REF] Driving Adapter Coverage
+
+| Driving port (from DESIGN) | Protocol | WS scenario |
+|----------------------------|----------|-------------|
+| `/coach-buddy [description]` invocation in Claude Chat Project conversation | Conversational turn (human pastes message) | "walking_skeleton @real-io @US-1 — /coach-buddy invocation activates full pipeline" |
+| Lean ambient layer (custom-instructions.md in Custom Instructions) | Passive — active on every message | "walking_skeleton @real-io @US-1 — lean layer activates without triggering full pipeline" |
+
+Both driving ports covered. Walking skeleton exercises the actual user invocation path — not a service function call.
+
+---
+
+## Wave: DISTILL / [REF] Pre-requisites
+
+- Slices 01 and 02 validated (the pipeline being deployed is proven; walking-skeleton.feature for architecture is green)
+- SKILL.md v1.7+ in place (includes `## Minimal install behaviour` section from DESIGN wave)
+- `custom-instructions.md` and `SKILL.md` available from repository
+- A real Claude Chat team project accessible (not the coach's dedicated coaching project)
+- Coach has a real coaching situation to use as test input (test-script.md Scenarios 1-3 require authentic situations for meaningful results)
+- Slice 03a completed before running Slice 03b scenarios
+- Minimal install configured (no reference files) before running Slice 03c / @US-3 scenarios

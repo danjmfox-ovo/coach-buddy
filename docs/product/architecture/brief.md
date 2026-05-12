@@ -79,9 +79,11 @@ C4Context
 
 ## C4: Container
 
+> **Deployment context**: This diagram represents the **dedicated coaching project** deployment (Slices 01-02), where SKILL.md is the custom instructions orchestrator. For the portable team project deployment (Slice 03, ADR-008), see the C4 Update section below — SKILL.md lives in Project Knowledge and `custom-instructions.md` is the Custom Instructions field.
+
 ```mermaid
 C4Container
-    title Coach Buddy — Container View
+    title Coach Buddy — Dedicated Coaching Project (Slices 01-02)
 
     Person(coach, "Agile Coach")
 
@@ -119,7 +121,7 @@ C4Container
 
 **Wave**: DESIGN (2026-05-12)
 **Feature**: coach-buddy-slice-03
-**Pattern**: Cutler-pattern, two-layer deployment variant (ADR-007)
+**Pattern**: Cutler-pattern, two-layer deployment variant (ADR-008)
 
 ### Deployment Model — Portable Team Project
 
@@ -140,7 +142,7 @@ The key architectural decision for Slice 03 is the separation of concerns betwee
 
 **Layer 2 (SKILL.md as Project Knowledge)**: Invocable. Activated by `/coach-buddy` prefix. Full thinking-partner pipeline: opening protocol, mode management, Phase A/B delivery, all ADR-encoded behaviours. Self-sufficient without reference files.
 
-### Self-Sufficiency Guarantee (ADR-007, D8)
+### Self-Sufficiency Guarantee (ADR-008, D8)
 
 SKILL.md's `## Minimal install behaviour` section encodes the quality bar for minimal installs. When reference files are absent, the tool draws on built-in primary and secondary lens descriptions. Minimum reliable output: names a dynamic, makes an attribution, offers an advancing question, surfaces no error.
 
