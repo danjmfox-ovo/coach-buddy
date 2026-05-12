@@ -1,0 +1,60 @@
+---
+# docs/product/jobs.yaml
+# SSOT for validated Jobs-to-be-Done
+# Bootstrapped by DISCUSS wave: coach-buddy-architecture (2026-05-12)
+
+jobs:
+  - id: thinking-partner
+    title: "Work through a real coaching situation with a knowledgeable sounding board"
+    job_story: >
+      When I am preparing for or reflecting on a coaching situation —
+      symptoms I can't name, dynamics I sense but haven't articulated,
+      interventions I'm not sure about —
+      I want a responsive, non-judgmental thinking partner who can help me
+      see more clearly what's happening,
+      so I can arrive at a session with sharper instincts and a plan I trust.
+    dimensions:
+      functional: "Articulate symptoms, name dynamics, evaluate interventions, design workshops, frame positioning"
+      emotional: "Feel held and respected, not lectured; trust that my intuition is the primary signal"
+      social: "Arrive at a session more prepared and confident; be seen as a skilled practitioner"
+    four_forces:
+      push: "No good sounding board available in the moment; colleagues not always reachable; journaling is slow and one-directional"
+      pull: "A partner who can reflect dynamics back, surface what I'm missing, and follow my lead without taking over"
+      anxiety: "Tool introduces frameworks that distract from the immediate situation; coaching becomes academic"
+      habit: "Currently journals, calls a colleague, or goes in cold"
+    opportunity:
+      importance: high
+      current_satisfaction: medium-low
+      score: 8.5
+      rationale: "High importance (coaches face real situations constantly); current alternatives are slow or unavailable; failure here is highly visible (session goes poorly)"
+
+  - id: growth-vehicle
+    title: "Discover relevant frameworks and approaches in context, when they actually apply"
+    job_story: >
+      When I am working through a coaching situation,
+      I want to encounter frameworks and approaches I haven't used before
+      — introduced at the right moment, not imposed —
+      so I can expand my repertoire in a way that sticks because it's grounded in a real case.
+    dimensions:
+      functional: "Be introduced to frameworks, models, and theories relevant to the situation at hand"
+      emotional: "Feel expanded and challenged, not overwhelmed or patronised"
+      social: "Grow as a practitioner; be able to reference and explain new approaches in future conversations"
+    four_forces:
+      push: "Framework repertoire feels limited; reaching for the same 2-3 approaches; sense that there are better tools I don't know about"
+      pull: "Learning that's grounded in a real case; frameworks introduced when I can immediately see their relevance"
+      anxiety: "Introduced frameworks I'm not ready for; growth-mode leaking into situation-focus moments and disrupting flow"
+      habit: "Reads books, attends training, but learning is decontextualized and doesn't transfer"
+    opportunity:
+      importance: medium-high
+      current_satisfaction: low
+      score: 7.5
+      rationale: "Strong opportunity; current alternatives don't connect learning to live situations; lower than Job 1 because failure here is less immediately visible"
+
+tension_note: >
+  The two jobs want fundamentally different orientations from the tool.
+  Job 1 (thinking-partner) wants the tool to follow the coach's lead — serve the situation, not introduce new material.
+  Job 2 (growth-vehicle) wants the tool to surface new things — expand the coach's horizon.
+  If growth-vehicle leaks into thinking-partner moments, it disrupts focus at high stakes.
+  If thinking-partner dominates all interactions, growth never happens.
+  The architecture must resolve this explicitly. Every architectural decision affecting mode, attribution,
+  or orchestration transparency should be evaluated against both jobs.

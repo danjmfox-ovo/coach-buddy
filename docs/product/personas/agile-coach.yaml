@@ -1,0 +1,30 @@
+---
+# Persona: The Agile Coach
+# Bootstrapped by DISCUSS wave: coach-buddy-architecture (2026-05-12)
+
+id: agile-coach
+name: "The Agile Coach"
+description: "Practitioner who works with teams and organisations to navigate complexity, improve ways of working, and develop capability"
+
+goals:
+  - Arrive at coaching sessions with sharp instincts and a flexible plan
+  - Expand repertoire beyond familiar frameworks without feeling overwhelmed
+  - Work through ambiguous situations quickly — sense, name, decide
+
+frustrations:
+  - No available thinking partner in the moment before a difficult session
+  - Learning from training doesn't transfer to live situations
+  - Tools that lecture rather than follow
+
+mental_model:
+  - The coach is the practitioner; the tool is a resource
+  - Situations are primary; frameworks are secondary (they serve the situation, not vice versa)
+  - Mode matters: situation-focus and learning-mode are different states, not a gradient
+
+vocabulary:
+  - "symptoms" — observable signals in a team or system that indicate a deeper dynamic
+  - "dynamics" — underlying patterns driving the symptoms
+  - "interventions" — actions the coach might take to shift the dynamic
+  - "positioning" — how the coach frames their role and approach to the client
+  - "workshop" — a designed facilitated session
+  - "frames" — coaching lenses (e.g. systemic, psychological safety, team dynamics)
