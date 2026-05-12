@@ -49,7 +49,7 @@ Use this when you want `/coach-buddy` available inside a team's existing project
 
 Type `/coach-buddy` in any conversation to activate the full thinking-partner pipeline.
 
-### Claude Code
+### Claude Code / CoWork
 
 ```bash
 # Project-level
@@ -57,6 +57,14 @@ cp -r . .claude/skills/coach-buddy/
 
 # User-level (available across all projects)
 cp -r . ~/.claude/skills/coach-buddy/
+```
+
+`/coach-buddy` registers as a slash command — more reliable than the soft-activation convention used in Chat Projects.
+
+**If your environment has a Jira, Linear, or similar MCP**: Coach Buddy can read board state directly. Frame your prompt around what you want to think about rather than asking it to analyse the data — the goal is a coaching conversation, not a ticket audit.
+
+```markdown
+/coach-buddy Sprint 14 is open in Jira. Something feels off with this team's delivery pattern — help me think through what might be going on.
 ```
 
 ### Cursor
@@ -80,6 +88,22 @@ My team are struggling with long cycle times, work carrying over into following 
 ```
 
 For the calibration canvas (mode, context, stakes): see [`assets/calibration-canvas.md`](assets/calibration-canvas.md).
+
+### Bringing in team artefacts
+
+When working in a team project, ground the conversation in what you're actually looking at:
+
+**Screenshot** — paste a board screenshot directly into the chat. Claude reads it and treats it as context for the coaching situation, not a ticket backlog to manage.
+
+**Text snapshot** — paste a brief description of what you're seeing:
+
+```markdown
+/coach-buddy Sprint 14 — 14 stories in progress across 3 devs. Cycle time has doubled over the last two sprints. Standup explanation: "things are complex".
+```
+
+**Persistent team context** — for ongoing work with one team, upload a `team-context.md` to Project Knowledge with current board state, team makeup, and retro notes. Update it between sessions.
+
+You don't need clean data. A rough description of what feels off is enough to start.
 
 ---
 
