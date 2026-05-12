@@ -1,8 +1,8 @@
 # DESIGN Decisions — coach-buddy-slice-03
 
 ## Key Decisions
-- [D7] Two-layer install model — `custom-instructions.md` as always-on Custom Instructions + `SKILL.md` as invocable Project Knowledge: separates ambient coaching sensibility from full pipeline activation (see: [ADR-007](../../../product/architecture/adr-007-portable-install-two-layer-model.md))
-- [D8] Graceful degradation quality bar — encoded in both ADR-007 and SKILL.md `## Minimal install behaviour` section: names a dynamic, one attribution from primary lens list, one advancing question, no error surfaced (see: [ADR-007](../../../product/architecture/adr-007-portable-install-two-layer-model.md))
+- [D7] Two-layer install model — `custom-instructions.md` as always-on Custom Instructions + `SKILL.md` as invocable Project Knowledge: separates ambient coaching sensibility from full pipeline activation (see: [ADR-008](../../../product/architecture/adr-008-portable-install-two-layer-model.md))
+- [D8] Graceful degradation quality bar — encoded in both ADR-008 and SKILL.md `## Minimal install behaviour` section: names a dynamic, one attribution from primary lens list, one advancing question, no error surfaced (see: [ADR-008](../../../product/architecture/adr-008-portable-install-two-layer-model.md))
 - [D9] Discovery hint in `custom-instructions.md` is sufficient for v1 — deferred watch item; revisit if usage data shows coaches not finding `/coach-buddy`
 
 ## Architecture Summary

@@ -33,7 +33,7 @@ Full profile: `docs/product/personas/agile-coach.yaml`
 | D4 | Ask when 2 mode signals + no stakes + topic discontinuity | Locked | [ADR-004](../../product/architecture/adr-004-ask-rather-than-assume.md) |
 | D5 | Situation focus wins when stakes stated OR stakes prompt elicited | Locked | [ADR-005](../../product/architecture/adr-005-situation-focus-high-stakes.md) |
 | D6 | Cutler-pattern now; nWave-pattern upgrade seam explicit | Locked | [ADR-006](../../product/architecture/adr-006-cutler-to-nwave-upgrade-seam.md) |
-| D7 | Two-layer install model: `custom-instructions.md` (lean always-on) + `SKILL.md` as project knowledge (invocable) | Implemented — awaiting ADR-007 | Commit 3c3e76f; `README.md` team project install path |
+| D7 | Two-layer install model: `custom-instructions.md` (lean always-on) + `SKILL.md` as project knowledge (invocable) | Implemented — awaiting ADR-008 | Commit 3c3e76f; `README.md` team project install path |
 
 **Underdetermined flags for DESIGN/DELIVER**:
 
@@ -315,8 +315,8 @@ Feature: Portable Coach Buddy install in a team project
 | D4 | Ask when 2 mode signals + no stakes + topic discontinuity | Accepted (carry-in) | [ADR-004](../../product/architecture/adr-004-ask-rather-than-assume.md) |
 | D5 | Situation focus wins when stakes stated OR elicited | Accepted (carry-in) | [ADR-005](../../product/architecture/adr-005-situation-focus-high-stakes.md) |
 | D6 | Cutler-pattern now; nWave upgrade seam explicit | Accepted (carry-in) | [ADR-006](../../product/architecture/adr-006-cutler-to-nwave-upgrade-seam.md) |
-| D7 | Two-layer install model: `custom-instructions.md` (lean always-on) + `SKILL.md` as Project Knowledge (invocable via `/coach-buddy`) | Accepted — this wave | [ADR-007](../../product/architecture/adr-007-portable-install-two-layer-model.md) |
-| D8 | Graceful degradation quality bar: names a dynamic, one attribution, one advancing question, no error surfaced — encoded in SKILL.md + ADR-007 | Accepted — this wave | [ADR-007](../../product/architecture/adr-007-portable-install-two-layer-model.md) |
+| D7 | Two-layer install model: `custom-instructions.md` (lean always-on) + `SKILL.md` as Project Knowledge (invocable via `/coach-buddy`) | Accepted — this wave | [ADR-008](../../product/architecture/adr-008-portable-install-two-layer-model.md) |
+| D8 | Graceful degradation quality bar: names a dynamic, one attribution, one advancing question, no error surfaced — encoded in SKILL.md + ADR-008 | Accepted — this wave | [ADR-008](../../product/architecture/adr-008-portable-install-two-layer-model.md) |
 | D9 | Discovery hint in `custom-instructions.md` sufficient for v1 | Deferred (watch item) | — |
 
 ---
@@ -330,7 +330,7 @@ Feature: Portable Coach Buddy install in a team project
 | Framework Library | Team project: Project Knowledge (optional) | Per-domain framework depth (complexity, work-layers, teams, development, tensions) | Medium — grows as repertoire expands |
 | Calibration Canvas | Team project: Project Knowledge (optional) | Mode/context/stakes template for structured calibration | Low |
 | README.md | Repository root | Authoritative install documentation; four install paths | Low — changes when install paths change |
-| ADR-007 | `docs/product/architecture/` | Decision record for two-layer model and graceful degradation quality bar | Low — stable once accepted |
+| ADR-008 | `docs/product/architecture/` | Decision record for two-layer model and graceful degradation quality bar | Low — stable once accepted |
 
 ---
 
@@ -368,7 +368,7 @@ None. This is a configuration architecture. No external integrations, no outboun
 | SKILL.md | `SKILL.md` | Full pipeline orchestration | EXTEND | Add `## Minimal install behaviour` section (~10 lines) — no new component needed |
 | custom-instructions.md | `custom-instructions.md` | Lean ambient layer | CREATE NEW (already delivered, commit 3c3e76f) | No prior component with this responsibility existed; lean layer is a new deployment concern |
 | README.md | `README.md` | Install documentation | CREATE NEW (already delivered, commit 3c3e76f) | No prior install documentation existed |
-| ADR-007 | `docs/product/architecture/adr-007-*.md` | Decision record for D7 and D8 | CREATE NEW (this wave) | Novel decision — portable install model and degradation quality bar have no prior ADR |
+| ADR-008 | `docs/product/architecture/adr-008-*.md` | Decision record for D7 and D8 | CREATE NEW (this wave) | Novel decision — portable install model and degradation quality bar have no prior ADR |
 
 ---
 

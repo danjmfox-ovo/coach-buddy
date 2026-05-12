@@ -111,7 +111,7 @@ C4Container
 | [ADR-004](adr-004-ask-rather-than-assume.md) | Ask rather than assume | Accepted |
 | [ADR-005](adr-005-situation-focus-high-stakes.md) | Situation focus wins at high stakes | Accepted |
 | [ADR-006](adr-006-cutler-to-nwave-upgrade-seam.md) | Cutler-pattern now; nWave-pattern upgrade seam | Accepted |
-| [ADR-007](adr-007-portable-install-two-layer-model.md) | Portable install — two-layer model and minimal install behaviour | Accepted |
+| [ADR-008](adr-008-portable-install-two-layer-model.md) | Portable install — two-layer model and minimal install behaviour | Accepted |
 
 ---
 

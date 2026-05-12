@@ -1,4 +1,4 @@
-# ADR-007: Portable Install — Two-Layer Model and Minimal Install Behaviour
+# ADR-008: Portable Install — Two-Layer Model and Minimal Install Behaviour
 
 **Status**: Accepted
 **Date**: 2026-05-12
