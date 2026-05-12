@@ -111,3 +111,59 @@ C4Container
 | [ADR-004](adr-004-ask-rather-than-assume.md) | Ask rather than assume | Accepted |
 | [ADR-005](adr-005-situation-focus-high-stakes.md) | Situation focus wins at high stakes | Accepted |
 | [ADR-006](adr-006-cutler-to-nwave-upgrade-seam.md) | Cutler-pattern now; nWave-pattern upgrade seam | Accepted |
+| [ADR-007](adr-007-portable-install-two-layer-model.md) | Portable install — two-layer model and minimal install behaviour | Accepted |
+
+---
+
+## Application Architecture — Slice 03 (Portable Install)
+
+**Wave**: DESIGN (2026-05-12)
+**Feature**: coach-buddy-slice-03
+**Pattern**: Cutler-pattern, two-layer deployment variant (ADR-007)
+
+### Deployment Model — Portable Team Project
+
+Slice 03 extends the existing architecture with a portable deployment variant that makes the thinking-partner pipeline available in any Claude Chat team project.
+
+| Component | Deployment location | Role |
+|-----------|---------------------|------|
+| `custom-instructions.md` | Custom Instructions field | Lean always-on layer — coaching sensibility without full pipeline activation |
+| `SKILL.md` | Project Knowledge | Full thinking-partner orchestrator — activated by `/coach-buddy` in any message |
+| `references/frameworks/` | Project Knowledge (optional) | Per-domain framework depth — enriches but is not required |
+| `assets/calibration-canvas.md` | Project Knowledge (optional) | Calibration template — optional |
+
+### Two-Layer Architecture
+
+The key architectural decision for Slice 03 is the separation of concerns between the always-on layer and the invocable layer:
+
+**Layer 1 (custom-instructions.md)**: Ambient. Always active. Establishes coaching register, Theory Y stance, attribution rule, concise language. Does not activate the full pipeline. Visible to all project participants.
+
+**Layer 2 (SKILL.md as Project Knowledge)**: Invocable. Activated by `/coach-buddy` prefix. Full thinking-partner pipeline: opening protocol, mode management, Phase A/B delivery, all ADR-encoded behaviours. Self-sufficient without reference files.
+
+### Self-Sufficiency Guarantee (ADR-007, D8)
+
+SKILL.md's `## Minimal install behaviour` section encodes the quality bar for minimal installs. When reference files are absent, the tool draws on built-in primary and secondary lens descriptions. Minimum reliable output: names a dynamic, makes an attribution, offers an advancing question, surfaces no error.
+
+### Component Decomposition Update
+
+No new components created. One extension:
+- `SKILL.md`: Extended with `## Minimal install behaviour` section (10 lines)
+
+### C4 Update — Portable Deployment
+
+```mermaid
+C4Container
+    title Coach Buddy — Portable Team Project Deployment
+
+    Person(coach, "Agile Coach")
+
+    Container_Boundary(teamproject, "Team Claude Chat Project") {
+        Container(custominstr, "custom-instructions.md", "Custom Instructions", "Lean always-on layer: coaching sensibility, Theory Y, attribution rule, /coach-buddy hint")
+        Container(skill, "SKILL.md", "Project Knowledge", "Full thinking-partner pipeline: invoked by /coach-buddy. Self-sufficient without reference files.")
+        Container(refs, "Framework Library", "Project Knowledge (optional)", "references/frameworks/ — per-domain depth; enriches but not required")
+    }
+
+    Rel(coach, custominstr, "Every message: ambient coaching sensibility active", "Always-on")
+    Rel(coach, skill, "Types /coach-buddy [situation]", "Explicit invocation")
+    Rel(skill, refs, "Reads when present; falls back to built-in descriptions when absent", "Optional enrichment")
+```

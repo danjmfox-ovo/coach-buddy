@@ -1,0 +1,108 @@
+---
+# Journey: Coaching in a Team Project
+# Bootstrapped by DISCUSS wave: coach-buddy-slice-03 (2026-05-12)
+# Jobs: in-context-activation (J3), portable-across-teams (J5)
+
+id: coaching-in-team-project
+persona: agile-coach
+jobs:
+  - in-context-activation
+  - portable-across-teams
+
+description: >
+  The coach is working inside a team's Claude Chat Project — reviewing sprint
+  artefacts, preparing for a session, observing a pattern — and invokes
+  Coach Buddy without switching to a separate tool.
+
+steps:
+  - id: trigger
+    label: "Coach observes something worth thinking through"
+    description: >
+      While reviewing team artefacts (sprint board, decision doc, retro notes),
+      the coach notices a dynamic, symptom, or preparation need.
+    actor: coach
+    emotional_state: curious / slightly distracted
+    artifacts_in_context:
+      - team project knowledge files
+      - conversation history in this project
+
+  - id: install_check
+    label: "Coach Buddy is already installed in this project"
+    description: >
+      custom-instructions.md is in custom instructions; SKILL.md is in project knowledge.
+      The lean always-on layer is active but not intrusive.
+    actor: system
+    emotional_state: unaware (transparent activation)
+    artifacts_in_context:
+      - custom-instructions.md (in custom instructions)
+      - SKILL.md (in project knowledge)
+
+  - id: invocation
+    label: "Coach types /coach-buddy"
+    description: >
+      Coach types `/coach-buddy` followed by an initial situation description,
+      optionally referencing team artefacts visible in the conversation.
+    actor: coach
+    emotional_state: grounded — focused on what they're noticing
+    shared_artifacts:
+      - initial_description: coach's first message, the primary input to the coaching pipeline
+
+  - id: first_response
+    label: "Tool responds with observation + calibrating question"
+    description: >
+      Full SKILL.md pipeline activates. Tool reflects one observation from the
+      initial description, then asks one calibrating question. Does not ask for
+      all calibration signals upfront.
+    actor: system
+    emotional_state: trust-check — "does this tool understand the context?"
+    shared_artifacts:
+      - observation: named symptom or dynamic from the description
+      - calibrating_question: one question about mode, context, or stakes
+
+  - id: working_through
+    label: "Coach works through the situation (3-5 turns)"
+    description: >
+      Coach refines their read, explores dynamics, and evaluates interventions.
+      Tool stays in situation-focus by default. Framework attribution fires on
+      first mention if relevant. Reference files (if present) add depth.
+    actor: coach + system
+    emotional_state: engaged — thinking is happening
+    shared_artifacts:
+      - mode_state: situation-focus (default) or learning-mode (if signalled)
+      - attribution_log: frameworks mentioned with Name (Source)
+
+  - id: resolution
+    label: "Coach arrives at a clearer read or decision"
+    description: >
+      Coach has named the dynamic, identified a likely intervention, or resolved
+      what question to explore further. Thinking is clearer; action is possible.
+    actor: coach
+    emotional_state: sharper / more confident
+
+  - id: return_to_context
+    label: "Coach returns to team work"
+    description: >
+      Team artefacts are still visible. Coaching didn't require a context switch.
+      The thinking happened alongside the triggering context.
+    actor: coach
+    emotional_state: integrated — coaching enhanced the work, didn't interrupt it
+
+emotional_arc:
+  trajectory: upward
+  low_point: trigger (slightly distracted, wondering if it's worth thinking through)
+  high_point: resolution (sharper instincts, action visible)
+  key_trust_moment: first_response (if tool shows it understood the situation, trust builds)
+
+error_paths:
+  - step: invocation
+    failure: /coach-buddy not recognised (SKILL.md not uploaded or named incorrectly)
+    recovery: README install procedure; verify SKILL.md is in project knowledge
+  - step: working_through
+    failure: Tool introduces unrequested framework (situation-focus violated)
+    recovery: Coach redirects; mode management should have prevented this (Story 2 AC)
+  - step: first_response
+    failure: Tool asks for all calibration signals upfront (calibration loop failure)
+    recovery: SKILL.md v1.1 ER-001/ER-002 resolved this; flag if it recurs
+  - step: working_through
+    failure: Reference files absent — response quality degrades catastrophically
+    recovery: Story 3 validates graceful degradation; this should not occur in minimal install
