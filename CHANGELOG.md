@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.7 (2026-05-12)
+
+### Added
+- **npx installer** (`bin/install.js`): detects Claude Code (project or user level) and Cursor; copies SKILL.md, custom-instructions.md, references/, and assets/ to the correct skills directory. Refuses to overwrite without `--force`. Prints manual Chat Project instructions when no tool is detected.
+- **package.json**: publishes as `coach-buddy` on npm. Not yet published.
+- **Sources section** in README: credits [johnpcutler/change-lenses-and-actions](https://github.com/johnpcutler/change-lenses-and-actions) (SKILL.md pattern) and [nWave-ai/nWave](https://github.com/nWave-ai/nWave) (development methodology).
+- **ADR-009**: documents the `npx coach-buddy` distribution decision and Wilderness Exception label.
+- **Acceptance tests** (`tests/acceptance/coach-buddy-slice-04/installer.feature`): 6 scenarios covering all install paths and overwrite guard.
+
+### Changed
+- **README Quick Install**: updated from aspirational `npx skills add` (unbacked) to `npx coach-buddy` with flag documentation.
+
+---
+
 ## v1.6 (2026-05-12)
 
 ### Changed
