@@ -1,4 +1,59 @@
-# Slice 01 Validation Findings
+# Slice 01 Validation Findings and Emerged Architecture
+
+---
+
+## Slice 01 trial verdict — 2026-05-12
+
+**Status: DONE.** Walking skeleton acceptance criteria met.
+
+Real conversation run against v1.1 then v1.2 SKILL.md in the dedicated coaching project. 10 acceptance scenarios evaluated manually against `tests/acceptance/coach-buddy-architecture/walking-skeleton.feature`.
+
+### Passing
+- ER-001 fix held: conversation did not get stuck in calibration loop; no explicit transition phrase required in practice (natural flow resolved it)
+- ER-002 fix held: tool opened with observation on first turn, not question; observation-before-question held through diagnostic phase
+- No unrequested frameworks introduced across 12 turns
+- Coach completed full thinking-through in one conversation
+- High-stakes tiebreaker not triggered (low-stakes conversation); D5 not tested in this run
+- DNA arc (v1.2): D-phase behaviour strong; A-phase synthesis rule not yet tested end-to-end
+
+### New emerged requirements
+
+**ER-003** — fixed in v1.2 before trial concluded
+Action-planning phase used D-phase behaviour (question after every coach answer). Fixed by DNA arc + A-phase synthesis rule (ADR-007). Logged in CHANGELOG v1.2.
+
+**ER-004** — open, added to walking skeleton as regression guard
+Framework vocabulary ("psychological safety") used in three consecutive turns without attribution. Attribution rule (ADR-002) requires `Name (Author)` on first mention regardless of whether the term is used as formal framework or common vocabulary. Scenario added to `walking-skeleton.feature`.
+
+### Two-question tendency — watch item, not yet a numbered ER
+Long diagnostic responses ending with two questions appeared twice (turns 1 and 3 of the v1.2 session). The individual-turn rule (one sharp question) is being violated at the end of multi-hypothesis responses. May warrant a SKILL.md tightening if it recurs in Slice 02 testing.
+
+### Slice 02 unblocked
+All Slice 01 acceptance criteria met. Slice 02 scope: interest detection (D2), deep-dive on request, mode management redirects, DNA N-phase behaviour. Start with a fresh DISCUSS wave.
+
+---
+
+## Emerged architectural direction — Slice 03
+
+**Mental model shift** (emerged from real use): Coach Buddy is not a dedicated coaching project. It is a coaching lens invocable across any team project via `/coach-buddy`. Each team has their own project with its own context and files; `/coach-buddy` drops in as a thinking-partner layer.
+
+**Implication**: SKILL.md must be self-sufficient without reference files. Framework knowledge either travels inline or degrades gracefully when reference files aren't present. The reference files are an enrichment layer, not a dependency.
+
+**Architecture target (Slice 03)**:
+- `custom-instructions.md` — lean always-on layer for a dedicated project (optional; not present in team projects)
+- `SKILL.md` — self-contained invocable skill; works in any project
+- `references/frameworks/` — depth layer; enriches when present
+- `assets/` — calibration canvas, output template; enriches when present
+- `README.md` — install instructions (Claude Chat Project, Claude Code, Cursor)
+- Distributable via `npx skills add danjmfox-ovo/coach-buddy`
+
+**Open decisions for Slice 03**:
+- How much framework knowledge to embed inline in SKILL.md vs rely on reference files?
+- Should the skill detect whether reference files are present and adjust behaviour?
+- CHANGELOG.md before publishing (v1.1 becomes a public interface)
+
+---
+
+
 
 ## ER-002 — Tool withholds domain knowledge pending calibration
 
