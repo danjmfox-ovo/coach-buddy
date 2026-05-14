@@ -1,0 +1,19 @@
+{
+  "name": "coach-buddy",
+  "version": "1.7.0",
+  "description": "Agile coaching tools: thinking partner, engagement scaffolding, coaching log, board snapshot, and retro action tracking",
+  "author": {
+    "name": "Dan Fox"
+  },
+  "repository": "https://github.com/danjmfox-ovo/coach-buddy",
+  "license": "MIT",
+  "keywords": [
+    "coaching",
+    "agile",
+    "retro",
+    "board",
+    "engagement",
+    "safety-ii"
+  ],
+  "skills": "./skills/"
+}

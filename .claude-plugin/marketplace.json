@@ -1,0 +1,20 @@
+{
+  "name": "coach-buddy",
+  "owner": {
+    "name": "Dan Fox",
+    "email": "dan.fox1@ovo.com"
+  },
+  "metadata": {
+    "description": "Agile coaching tools: thinking partner, engagement scaffolding, coaching log, board snapshot, and retro action tracking",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "coach-buddy",
+      "source": "./plugins/coach-buddy",
+      "description": "Agile coaching tools: thinking partner (coach-buddy), engagement scaffolding (cb-init), coaching log (cb-log), board snapshot (cb-snapshot), and retro action tracking (cb-retro)",
+      "keywords": ["coaching", "agile", "retro", "board", "engagement", "safety-ii"],
+      "category": "productivity"
+    }
+  ]
+}

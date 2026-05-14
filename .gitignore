@@ -2,3 +2,5 @@
 *.swp
 *.swo
 .nwave/des-config.json
+node_modules/
+*.plugin
