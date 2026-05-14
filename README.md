@@ -49,7 +49,7 @@ Use this when you want `/coach-buddy` available inside a team's existing project
 
 Type `/coach-buddy` in any conversation to activate the full thinking-partner pipeline.
 
-### Claude Code / CoWork
+### Claude Code
 
 ```bash
 # Project-level
@@ -66,6 +66,15 @@ cp -r . ~/.claude/skills/coach-buddy/
 ```markdown
 /coach-buddy Sprint 14 is open in Jira. Something feels off with this team's delivery pattern — help me think through what might be going on.
 ```
+
+### Claude CoWork
+
+1. Build the plugin: `npm run build:plugin` produces `coach-buddy.plugin` at the repo root
+2. In CoWork, go to **Settings** → **Plugins** → **Upload plugin**
+3. Select `coach-buddy.plugin`
+4. Click **Install**
+
+`/coach-buddy` and the engagement layer skills (`/cb-init`, `/cb-log`, `/cb-retro`, `/cb-snapshot`) will be available immediately in all your CoWork projects.
 
 ### Cursor
 
@@ -196,6 +205,7 @@ You don't need clean data. A rough description of what feels off is enough to st
 | [`skills/cb-log/`](skills/cb-log/) | Coaching log capture skill |
 | [`skills/cb-retro/`](skills/cb-retro/) | Retro action tracking skill |
 | [`skills/cb-snapshot/`](skills/cb-snapshot/) | Board snapshot skill |
+| [`plugins/coach-buddy/`](plugins/coach-buddy/) | CoWork plugin (all five skills packaged for upload) |
 | [`docs/product/architecture/`](docs/product/architecture/) | Ten ADRs documenting architectural decisions |
 
 ---

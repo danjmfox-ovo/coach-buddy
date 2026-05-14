@@ -24,3 +24,34 @@ npm publish --access public
 - Test live: `npx coach-buddy` in a project with `.claude/` present
 - Update CHANGELOG if any last-minute fixes landed during pre-publish checks
 - Tag the release: `git tag v1.7.0 && git push --tags`
+
+## Plugin build (CoWork)
+
+Build the plugin for upload to Claude CoWork.
+
+**How to build**
+
+```bash
+npm run build:plugin
+```
+
+**What it produces**
+
+`coach-buddy.plugin` at the repo root — a zip file containing:
+- All five skills (coach-buddy, cb-init, cb-log, cb-retro, cb-snapshot)
+- Plugin manifest with metadata
+- Ready for direct upload to CoWork
+
+**Build validation**
+
+The script validates:
+- `plugin.json` contains a `skills` field (required)
+- Schema compliance via `claude plugin validate`
+
+**How to distribute**
+
+1. In Claude CoWork, go to **Settings** → **Plugins** → **Upload plugin**
+2. Select `coach-buddy.plugin`
+3. Click **Install**
+
+**Note**: The plugin is a file artifact distributed via CoWork upload, not published to npm.
