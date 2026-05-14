@@ -20,6 +20,7 @@
   ],
   "scripts": {
     "test": "vitest run",
+    "check:version": "node scripts/check-version.js",
     "build:plugin": "cd plugins/coach-buddy && zip -r \"$TMPDIR/coach-buddy.plugin\" . -x '*.DS_Store' && cp \"$TMPDIR/coach-buddy.plugin\" ../../coach-buddy.plugin && cd ../.. && node -e \"const p=JSON.parse(require('fs').readFileSync('plugins/coach-buddy/.claude-plugin/plugin.json','utf8')); if(!p.skills){console.error('ERROR: plugin.json missing skills field');process.exit(1);}\" && claude plugin validate plugins/coach-buddy/.claude-plugin/plugin.json && echo '✅ coach-buddy.plugin ready'"
   },
   "devDependencies": {
