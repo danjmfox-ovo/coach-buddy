@@ -18,6 +18,12 @@
     "cursor",
     "ai-skill"
   ],
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.0"
+  },
   "license": "MIT",
   "engines": {
     "node": ">=18"
