@@ -1,0 +1,124 @@
+---
+# Journey: Ongoing Engagement
+# Bootstrapped by DISCUSS wave: coach-buddy-slice-05 (2026-05-14)
+# Jobs: situated-coaching-across-sessions (J6), structured-observation-capture (J7),
+#        board-snapshot-without-context-switch (J8), engagement-scaffolding (J9)
+
+id: ongoing-engagement
+persona: agile-coach
+jobs:
+  - situated-coaching-across-sessions
+  - structured-observation-capture
+  - board-snapshot-without-context-switch
+  - engagement-scaffolding
+
+description: >
+  The coach is working with a team over weeks or months. Rather than starting
+  cold in each session, they maintain a persistent engagement folder that captures
+  team context, coaching observations, retro actions, and board snapshots. This
+  journey extends coaching-in-team-project with a persistence layer.
+
+extends: coaching-in-team-project
+
+steps:
+  - id: engagement-start
+    label: "Coach initialises the engagement folder (once per engagement)"
+    description: >
+      Coach runs /cb-init, answers prompts about team name, slug, and project management
+      tool. engagement folder created with CONTEXT.md, COACHING_LOG.md,
+      RETRO_ACTIONS.md, HISTORY.md, and config.json.
+    actor: coach
+    emotional_state: set-up and ready
+    artifacts_produced:
+      - engagements/<team-slug>/CONTEXT.md
+      - engagements/<team-slug>/COACHING_LOG.md
+      - engagements/<team-slug>/RETRO_ACTIONS.md
+      - engagements/<team-slug>/HISTORY.md
+      - engagements/<team-slug>/config.json
+
+  - id: context-fill
+    label: "Coach fills CONTEXT.md with team knowledge"
+    description: >
+      Between or after first sessions, coach populates CONTEXT.md with team purpose,
+      structure, WoW, ceremonies, workflow, boards, repos, stakeholders, commitments.
+      This is manual; no skill is needed. Updated as things change.
+    actor: coach
+    emotional_state: grounded — building the picture
+    artifacts_updated:
+      - engagements/<team-slug>/CONTEXT.md
+
+  - id: session-observation
+    label: "Coach runs /cb-log after a session"
+    description: >
+      After a team session (standup, retro, 1:1, board review), coach runs /cb-log
+      with a description of what they noticed. Entry is prepended to COACHING_LOG.md
+      in Safety-II format. Quick capture is the primary path; refinement happens later.
+    actor: coach
+    emotional_state: reflective — translating experience into structure
+    shared_artifacts:
+      - observation: Work-as-Done framing of what happened
+      - hypothesis: If/Then format, testable
+    artifacts_updated:
+      - engagements/<team-slug>/COACHING_LOG.md
+
+  - id: retro-capture
+    label: "Coach runs /cb-retro after a retrospective"
+    description: >
+      After a retro, coach runs /cb-retro with a paste of the output. Actions
+      are extracted and added to RETRO_ACTIONS.md. Ambiguous items are flagged.
+    actor: coach
+    emotional_state: organised — tracking commitments
+    artifacts_updated:
+      - engagements/<team-slug>/RETRO_ACTIONS.md
+
+  - id: pre-session-snapshot
+    label: "Coach runs /cb-snapshot before a coaching conversation"
+    description: >
+      Before starting a /coach-buddy conversation, coach runs /cb-snapshot.
+      Snapshot file written to engagements/<team-slug>/snapshots/YYYY-MM-DD-board.md.
+      Two-sentence risk read printed in chat. Coach reviews before invoking /coach-buddy.
+    actor: coach
+    emotional_state: prepared — Work-as-Done picture in hand
+    artifacts_produced:
+      - engagements/<team-slug>/snapshots/YYYY-MM-DD-board.md
+
+  - id: grounded-coaching-conversation
+    label: "Coach invokes /coach-buddy with engagement context visible"
+    description: >
+      Coach starts a /coach-buddy conversation. Engagement files are available —
+      either as uploaded project knowledge (Chat) or as files readable by Claude Code.
+      The conversation builds on prior observations and the current board state.
+    actor: coach + system
+    emotional_state: continuous — coaching builds, not starts over
+    shared_artifacts:
+      - CONTEXT.md: team knowledge
+      - COACHING_LOG.md: prior observations and hypotheses
+      - snapshot file: current Work-as-Done picture
+
+  - id: cross-session-pattern
+    label: "Patterns emerge across sessions"
+    description: >
+      After several sessions, the coach reviews COACHING_LOG.md. Hypotheses
+      accumulate. Interventions can be compared. The coaching arc is visible.
+    actor: coach
+    emotional_state: systemic — seeing across sessions, not just within them
+
+emotional_arc:
+  trajectory: upward
+  low_point: engagement-start (setup friction, uncertainty about what to capture)
+  high_point: cross-session-pattern (arc visible, coaching builds on itself)
+  key_trust_moment: session-observation (if /cb-log is fast and the format feels right, it becomes habitual)
+
+error_paths:
+  - step: session-observation
+    failure: Quick-capture path too slow or format feels like overhead
+    recovery: Reduce required fields; ensure "(to fill)" scaffolding is the default, not a fallback
+  - step: pre-session-snapshot
+    failure: No MCP available; /cb-snapshot cannot query tool automatically
+    recovery: "none / manual paste" fallback path; coach pastes board state and skill structures it
+  - step: grounded-coaching-conversation
+    failure: Engagement files not uploaded to Chat (Chat project knowledge not in sync)
+    recovery: Upload snapshot file and CONTEXT.md before the conversation; README sync pattern explains this
+  - step: context-fill
+    failure: CONTEXT.md never populated; file stays as placeholders
+    recovery: Onboarding note in README; placeholder prompts designed to be compelling enough to fill

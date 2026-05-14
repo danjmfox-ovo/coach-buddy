@@ -98,6 +98,98 @@ jobs:
     validated: false
     note: "Emerged from mental model shift (2026-05-12). Not yet in use. Prioritise J3 (in-context-activation) first."
 
+  - id: situated-coaching-across-sessions
+    title: "Arrive at every coaching conversation with persistent knowledge of the team's context and arc"
+    job_story: >
+      When I'm in an ongoing engagement with a team across many weeks,
+      I want coach-buddy to have persistent knowledge of that team's context, history, and coaching arc,
+      so I don't have to reconstruct the situation from scratch at the start of every conversation.
+    dimensions:
+      functional: "Engagement folder with CONTEXT.md, COACHING_LOG.md, RETRO_ACTIONS.md, HISTORY.md; skills that read and write those files"
+      emotional: "Feel continuous and grounded — coaching builds, not starts over"
+      social: "Coaching practice that visibly accumulates; arc visible to the coach across time"
+    four_forces:
+      push: "Cold-start friction on every session; coaching arc invisible; hypotheses evaporate between sessions; have to re-describe team context from memory"
+      pull: "Conversations that build on prior observations; running hypotheses and interventions that accumulate; coaching arc readable at a glance"
+      anxiety: "Engagement files go stale; false confidence from outdated context; too much overhead to keep current"
+      habit: "Mental notes, personal journal, re-reads old notes inconsistently before sessions"
+    opportunity:
+      importance: high
+      current_satisfaction: very-low
+      score: 9.0
+      rationale: "Highest-value job in this slice. Cold-start friction is the primary barrier to coach-buddy as an ongoing tool rather than a one-off resource."
+    validated: false
+    note: "Emerged from reference implementation (2026-05-14). Validated in one engagement context; not yet in wider use."
+
+  - id: structured-observation-capture
+    title: "Record coaching observations in a Safety-II-informed structure that supports hypothesis building over time"
+    job_story: >
+      When I notice something worth tracking during or after a session,
+      I want to record it in a structured Safety-II format (observed / hypothesis / intervention),
+      so I can build a testable coaching arc rather than an impressionistic journal.
+    dimensions:
+      functional: "Structured COACHING_LOG.md with six fields; quick-capture path; update-by-ID; retro action tracking"
+      emotional: "Feel like I'm building something, not just noting things; the structure gives me confidence that nothing important is slipping"
+      social: "Practice that looks rigorous and traceable; coaching backed by evidence not just instinct"
+    four_forces:
+      push: "Free-form notes don't surface patterns; hypothesis and intervention not linked; observation becomes a Post-it that disappears"
+      pull: "Running log where patterns emerge across entries; interventions traceable; hypotheses visible and testable"
+      anxiety: "Structure feels like overhead when tired after a session; might not fill in all fields every time"
+      habit: "Free-form journaling, or nothing"
+    opportunity:
+      importance: high
+      current_satisfaction: low
+      score: 8.0
+      rationale: "High value for ongoing engagements; structure risk (overhead) is real but mitigated by quick-capture path."
+    validated: false
+    note: "Emerged from reference implementation (2026-05-14)."
+
+  - id: board-snapshot-without-context-switch
+    title: "Get a structured picture of the team's work state without leaving the coaching context"
+    job_story: >
+      When I'm preparing for a coaching conversation or session,
+      I want a structured current picture of the team's work state available in my coaching context,
+      so I can reason from Work-as-Done rather than Work-as-Imagined without manually querying the project management tool.
+    dimensions:
+      functional: "Dated snapshot file at known path; four sections (WIP/Progress/Runway/Waiting); age-flags; two-sentence risk read"
+      emotional: "Feel prepared and grounded in reality, not in what I remember from the last session"
+      social: "Coaching from evidence; less reliance on what the team tells me they're working on"
+    four_forces:
+      push: "Manual Jira query is a separate context switch; data doesn't persist in coaching context; screenshot is quick but unstructured"
+      pull: "Snapshot file that surfaces WIP age, flow health, risk signals; readable in 30 seconds; uploadable to Chat"
+      anxiety: "Snapshot might be stale; automated query requires MCP setup; not available if tool is 'none'"
+      habit: "Opens Jira directly, screenshots, copy-pastes relevant items, or skips the data entirely"
+    opportunity:
+      importance: medium-high
+      current_satisfaction: very-low
+      score: 7.5
+      rationale: "High value when a project management MCP is available; medium value with manual paste fallback. Bridge between live skills and Chat project knowledge."
+    validated: false
+    note: "Emerged from reference implementation (2026-05-14). Jira reference implementation; tool-agnostic design required."
+
+  - id: engagement-scaffolding
+    title: "Scaffold a new engagement folder structure with one command"
+    job_story: >
+      When I start coaching a new team,
+      I want to run one command that creates a consistent engagement folder structure,
+      so I can start capturing context from day one without designing the structure from scratch each time.
+    dimensions:
+      functional: "init skill; engagements/<team-slug>/ folder with four files and config.json; consistent across engagements"
+      emotional: "Feel set up and ready; no friction at the start of a new engagement"
+      social: "Consistent practice across all engagements; nothing improvised"
+    four_forces:
+      push: "Every engagement starts with improvised structure; no consistency; copying from previous engagement introduces stale content"
+      pull: "One command, ready structure, nothing to design; consistent across every team"
+      anxiety: "Generic structure may not fit a short or unusual engagement; ceremony overhead for low-stakes contexts"
+      habit: "Copies files from a previous engagement or starts from blank"
+    opportunity:
+      importance: medium
+      current_satisfaction: very-low
+      score: 7.0
+      rationale: "Enabler for J6 (situated coaching) — without scaffolding, the other skills have nowhere to write. Moderate standalone value; high value as a prerequisite."
+    validated: false
+    note: "Emerged from reference implementation (2026-05-14)."
+
 tension_note: >
   J1 vs J2: The two coaching experience jobs want different orientations.
   J1 (thinking-partner) wants the tool to follow — serve the situation, not introduce new material.
@@ -111,3 +203,7 @@ tension_note: >
   J4 (team as user): Explicitly out of scope. Coach is sole user.
 
   J5 vs J3: J5 is a distribution job. It falls out of solving J3. Aspirational, not yet validated.
+
+  J6-J9 (engagement context layer): Additive to J1-J5. J6 is the primary value job; J7, J8, J9 are
+  its enabling jobs. J9 (scaffolding) is a prerequisite for J6, J7, J8. J8 (board snapshot) is the
+  bridge between live skills and Chat project knowledge — it makes the persistent context portable.
