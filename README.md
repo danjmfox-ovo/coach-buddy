@@ -79,6 +79,82 @@ cp -r . ~/.cursor/skills/coach-buddy/
 
 ---
 
+## Engagement context layer
+
+For ongoing engagements — coaching the same team across weeks or months — the engagement context layer gives coach-buddy persistent grounding. Without it, every conversation starts cold.
+
+### What it is
+
+Four companion skills that maintain a folder of structured files for each engagement:
+
+| Skill | What it does |
+|-------|-------------|
+| `/cb-init` | Scaffolds a new engagement folder with all required files |
+| `/cb-log` | Captures a Safety-II-informed coaching observation after a session |
+| `/cb-retro` | Adds or updates retro actions in the tracker |
+| `/cb-snapshot` | Writes a current board snapshot before a coaching conversation |
+
+### When to use it
+
+Use the engagement layer when you are coaching a team over time and want:
+- Observations and hypotheses to accumulate across sessions (not reset each conversation)
+- Retro actions tracked in the same place as coaching observations
+- A current board picture available before each `/coach-buddy` conversation
+- Context portable between Claude Code and Claude Chat (see below)
+
+For one-off sessions or exploratory conversations, the engagement layer is not needed — just use `/coach-buddy` directly.
+
+### Setup
+
+**Install** the `skills/cb-*/` directories alongside the rest of coach-buddy:
+
+```bash
+# From the coach-buddy repo root, into your project:
+cp -r skills/cb-init  .claude/skills/cb-init
+cp -r skills/cb-log   .claude/skills/cb-log
+cp -r skills/cb-retro .claude/skills/cb-retro
+cp -r skills/cb-snapshot .claude/skills/cb-snapshot
+```
+
+**Initialise** a new engagement:
+
+```bash
+/cb-init
+```
+
+Answer the prompts (team name, slug, project management tool). An `engagements/<team-slug>/` folder is created with `CONTEXT.md`, `COACHING_LOG.md`, `RETRO_ACTIONS.md`, `HISTORY.md`, and `snapshots/`.
+
+**Fill in** `CONTEXT.md` with what you know about the team. This is the only manual step — the other files are managed by the skills.
+
+### Typical session flow
+
+```bash
+# After a team session — capture what you noticed
+/cb-log The team ran a retro where every action was process-level. No one named the underlying dynamic.
+
+# After a retrospective — log the actions
+/cb-retro --paste "<paste your retro output here>"
+
+# Before a coaching conversation — get a current board picture
+/cb-snapshot
+
+# Start a coaching conversation
+/coach-buddy I'm preparing for a 1:1 with the tech lead. The snapshot is showing 8 stories in WIP across 3 people.
+```
+
+### Claude Chat project knowledge sync
+
+The engagement files are also readable as Claude Chat project knowledge — giving the same grounding in Chat conversations that can't run skills directly.
+
+Before a Chat session, upload:
+- `engagements/<team-slug>/CONTEXT.md` — static team knowledge
+- `engagements/<team-slug>/COACHING_LOG.md` (or a recent excerpt) — coaching arc
+- The latest `engagements/<team-slug>/snapshots/YYYY-MM-DD-board.md` — current board state
+
+The `/cb-snapshot` file is designed to be uploaded directly — it is structured and readable without editing.
+
+---
+
 ## Usage
 
 Describe your situation. The tool will reflect back what it hears, ask one calibrating question, and help you think — not think for you.
@@ -114,8 +190,13 @@ You don't need clean data. A rough description of what feels off is enough to st
 | [`SKILL.md`](SKILL.md) | Full thinking-partner pipeline — use as custom instructions (dedicated) or project knowledge (portable) |
 | [`custom-instructions.md`](custom-instructions.md) | Lean always-on layer — use as custom instructions in a team project |
 | [`references/frameworks/`](references/frameworks/) | Coaching-specific framework depth: complexity, work layers, teams, development, tensions |
+| [`references/coaching-practice/`](references/coaching-practice/) | Engagement layer reference docs: COACHING_LOG format rationale, board snapshot interpretation guide |
 | [`assets/calibration-canvas.md`](assets/calibration-canvas.md) | Template for capturing mode, context, and stakes at conversation open |
-| [`docs/product/architecture/`](docs/product/architecture/) | Nine ADRs documenting architectural decisions |
+| [`skills/cb-init/`](skills/cb-init/) | Engagement scaffolding skill |
+| [`skills/cb-log/`](skills/cb-log/) | Coaching log capture skill |
+| [`skills/cb-retro/`](skills/cb-retro/) | Retro action tracking skill |
+| [`skills/cb-snapshot/`](skills/cb-snapshot/) | Board snapshot skill |
+| [`docs/product/architecture/`](docs/product/architecture/) | Ten ADRs documenting architectural decisions |
 
 ---
 

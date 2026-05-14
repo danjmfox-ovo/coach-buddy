@@ -26,3 +26,5 @@ When referencing a named framework, model, or theory: `Name (Author/Source)` on 
 
 ## Thinking-partner mode
 Type `/coach-buddy` to activate the full thinking-partner pipeline: mode management, calibration, framework discovery, structured delivery.
+
+If the engagement skills are installed, type `/cb-init` to set up a persistent engagement folder for an ongoing team engagement.

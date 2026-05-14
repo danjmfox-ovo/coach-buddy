@@ -114,6 +114,8 @@ C4Container
 | [ADR-005](adr-005-situation-focus-high-stakes.md) | Situation focus wins at high stakes | Accepted |
 | [ADR-006](adr-006-cutler-to-nwave-upgrade-seam.md) | Cutler-pattern now; nWave-pattern upgrade seam | Accepted |
 | [ADR-008](adr-008-portable-install-two-layer-model.md) | Portable install — two-layer model and minimal install behaviour | Accepted |
+| [ADR-009](adr-009-npx-distribution.md) | npx distribution as Wilderness Exception | Accepted |
+| [ADR-010](adr-010-engagement-context-layer.md) | Engagement context layer — third deployment pattern | Accepted |
 
 ---
 
@@ -168,4 +170,99 @@ C4Container
     Rel(coach, custominstr, "Every message: ambient coaching sensibility active", "Always-on")
     Rel(coach, skill, "Types /coach-buddy [situation]", "Explicit invocation")
     Rel(skill, refs, "Reads when present; falls back to built-in descriptions when absent", "Optional enrichment")
+```
+
+---
+
+## Application Architecture — Slice 05 (Engagement Context Layer)
+
+**Wave**: DESIGN (2026-05-14)
+**Feature**: coach-buddy-slice-05
+**Pattern**: Cutler-pattern extension — independent cb- skill invocables + markdown file persistence (ADR-010)
+
+### Third Deployment Pattern
+
+Slice 05 adds a persistent engagement context layer that can be layered on top of either existing deployment pattern (dedicated project or portable team project install).
+
+| Deployment pattern | File | Role |
+|---|---|---|
+| Dedicated coaching project | `SKILL.md` as Custom Instructions | Full pipeline always-on |
+| Portable team project | `custom-instructions.md` + `SKILL.md` in Knowledge | Two-layer ambient + invocable |
+| **Engagement context layer** | **`skills/cb-*/SKILL.md`** | **Four independent invocables for persistent engagement management** |
+
+### Component Decomposition
+
+| Component | Repo location | Install location | Responsibility |
+|-----------|--------------|-----------------|----------------|
+| `cb-init` | `skills/cb-init/SKILL.md` | `.claude/skills/cb-init/SKILL.md` | Scaffold engagement folder; write config.json and four template files |
+| `cb-log` | `skills/cb-log/SKILL.md` | `.claude/skills/cb-log/SKILL.md` | Prepend Safety-II entries to COACHING_LOG.md; quick capture + update |
+| `cb-retro` | `skills/cb-retro/SKILL.md` | `.claude/skills/cb-retro/SKILL.md` | Append/update rows in RETRO_ACTIONS.md; paste extraction |
+| `cb-snapshot` | `skills/cb-snapshot/SKILL.md` | `.claude/skills/cb-snapshot/SKILL.md` | Write dated board snapshot; tool-agnostic (Jira ref + paste fallback); risk read |
+| `coaching-log-format.md` | `references/coaching-practice/` | Project Knowledge (optional) | Safety-II rationale for log field structure |
+| `board-snapshot-guide.md` | `references/coaching-practice/` | Project Knowledge (optional) | How to read and use a snapshot in coaching |
+
+### Engagement Data Layout (user's project, not in package)
+
+```
+engagements/
+  <team-slug>/
+    config.json           ← written by cb-init; read by all downstream skills
+    CONTEXT.md            ← static team knowledge (manual)
+    COACHING_LOG.md       ← Safety-II observations, most-recent-first
+    RETRO_ACTIONS.md      ← retro action tracker
+    HISTORY.md            ← team lineage
+    snapshots/
+      YYYY-MM-DD-board.md ← written by cb-snapshot
+```
+
+### C4 Update — Engagement Context Layer
+
+```mermaid
+C4Container
+    title Coach Buddy — Engagement Context Layer
+
+    Person(coach, "Agile Coach")
+
+    Container_Boundary(claudecode, "Claude Code / CoWork") {
+        Container(cbinit, "cb-init", "Skill (.claude/skills/cb-init/)", "Scaffolds engagement folder; prompts for config; writes four files + config.json")
+        Container(cblog, "cb-log", "Skill (.claude/skills/cb-log/)", "Prepends structured Safety-II entries to COACHING_LOG.md")
+        Container(cbretro, "cb-retro", "Skill (.claude/skills/cb-retro/)", "Manages RETRO_ACTIONS.md rows; paste extraction")
+        Container(cbsnapshot, "cb-snapshot", "Skill (.claude/skills/cb-snapshot/)", "Queries board tool or accepts paste; writes dated snapshot; prints risk read")
+        Container(coachbuddy, "coach-buddy", "Skill (.claude/skills/coach-buddy/)", "Existing thinking-partner pipeline — unchanged")
+    }
+
+    Container_Boundary(engagementstore, "Engagement Folder (engagements/<slug>/)") {
+        ContainerDb(configjson, "config.json", "JSON", "Engagement registry: tool type, project key, path, threshold")
+        ContainerDb(contextmd, "CONTEXT.md", "Markdown", "Static team knowledge")
+        ContainerDb(coachinglog, "COACHING_LOG.md", "Markdown", "Safety-II observations, most-recent-first")
+        ContainerDb(retromd, "RETRO_ACTIONS.md", "Markdown", "Retro action tracker")
+        ContainerDb(snapshot, "snapshots/YYYY-MM-DD-board.md", "Markdown", "Dated board snapshots")
+    }
+
+    System_Ext(boardtool, "Board Tool (Jira / other)", "Project management system — queried via MCP or manual paste")
+
+    Rel(coach, cbinit, "/cb-init", "Once per engagement")
+    Rel(coach, cblog, "/cb-log [observation]", "After each session")
+    Rel(coach, cbretro, "/cb-retro [action]", "After retros")
+    Rel(coach, cbsnapshot, "/cb-snapshot", "Before coaching conversations")
+    Rel(coach, coachbuddy, "/coach-buddy [situation]", "Coaching conversations — unchanged")
+
+    Rel(cbinit, configjson, "Writes", "")
+    Rel(cbinit, contextmd, "Creates with placeholders", "")
+    Rel(cbinit, coachinglog, "Creates with header", "")
+    Rel(cbinit, retromd, "Creates with empty table", "")
+
+    Rel(cblog, configjson, "Reads engagement path", "")
+    Rel(cblog, coachinglog, "Prepends entry", "")
+
+    Rel(cbretro, configjson, "Reads engagement path", "")
+    Rel(cbretro, retromd, "Appends / updates row", "")
+
+    Rel(cbsnapshot, configjson, "Reads tool config + path", "")
+    Rel(cbsnapshot, boardtool, "Queries via MCP (or accepts paste)", "Optional")
+    Rel(cbsnapshot, snapshot, "Writes dated file", "")
+
+    Rel(coachbuddy, contextmd, "Reads if present", "Optional context")
+    Rel(coachbuddy, coachinglog, "Reads if present", "Optional context")
+    Rel(coachbuddy, snapshot, "Reads most recent if present", "Optional context")
 ```
