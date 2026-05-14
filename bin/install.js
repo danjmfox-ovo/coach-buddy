@@ -25,13 +25,27 @@ function detectTarget() {
   return null
 }
 
+const SUB_SKILLS = ['cb-init', 'cb-log', 'cb-retro', 'cb-snapshot']
+
+function copySkill(src, dest) {
+  mkdirSync(dest, { recursive: true })
+  cpSync(src, dest, { recursive: true })
+}
+
 function copyFiles(target) {
-  mkdirSync(target, { recursive: true })
-  for (const item of ['SKILL.md', 'custom-instructions.md', 'references', 'assets']) {
-    const src = join(packageRoot, item)
-    if (existsSync(src)) {
-      cpSync(src, join(target, item), { recursive: true })
-    }
+  const skillsRoot = join(packageRoot, 'skills')
+  const targetParent = dirname(target)
+
+  copySkill(join(skillsRoot, 'coach-buddy'), target)
+
+  const customInstructions = join(packageRoot, 'custom-instructions.md')
+  if (existsSync(customInstructions)) {
+    cpSync(customInstructions, join(target, 'custom-instructions.md'))
+  }
+
+  for (const skill of SUB_SKILLS) {
+    const src = join(skillsRoot, skill)
+    if (existsSync(src)) copySkill(src, join(targetParent, skill))
   }
 }
 

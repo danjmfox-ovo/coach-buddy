@@ -4,8 +4,9 @@ description: >-
   Captures or updates a structured coaching observation in COACHING_LOG.md.
   Safety-II informed: observations are Work-as-Done, hypotheses are testable If/Then.
   Use after any team session, ceremony, or interaction worth tracking.
-user-invocable: true
-argument-hint: '<observation> [--update <id> <field> <value>] [--slug <team-slug>]'
+metadata:
+  user-invocable: true
+  argument-hint: '<observation> [--update <id> <field> <value>] [--slug <team-slug>]'
 ---
 
 # cb-log — Coaching Log Capture

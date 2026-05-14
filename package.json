@@ -7,10 +7,8 @@
     "coach-buddy": "./bin/install.js"
   },
   "files": [
-    "SKILL.md",
+    "skills/",
     "custom-instructions.md",
-    "references/",
-    "assets/",
     "bin/"
   ],
   "keywords": [

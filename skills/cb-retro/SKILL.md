@@ -4,8 +4,9 @@ description: >-
   Adds or updates retro actions in RETRO_ACTIONS.md. Supports single action entry,
   status updates by ID, and bulk extraction from pasted retro output.
   Use after retrospectives to track follow-through in the engagement folder.
-user-invocable: true
-argument-hint: '<action> [--update <id> <field> <value>] [--paste "<raw text>"] [--slug <team-slug>]'
+metadata:
+  user-invocable: true
+  argument-hint: '<action> [--update <id> <field> <value>] [--paste "<raw text>"] [--slug <team-slug>]'
 ---
 
 # cb-retro — Retro Action Tracking
