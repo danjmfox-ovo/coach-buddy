@@ -69,12 +69,14 @@ cp -r . ~/.claude/skills/coach-buddy/
 
 ### Claude CoWork
 
-1. Build the plugin: `npm run build:plugin` produces `coach-buddy.plugin` at the repo root
+1. Download `coach-buddy.plugin` from the [latest GitHub Release](https://github.com/danjmfox-ovo/coach-buddy/releases/latest)
 2. In CoWork, go to **Settings** → **Plugins** → **Upload plugin**
-3. Select `coach-buddy.plugin`
+3. Select the downloaded `coach-buddy.plugin`
 4. Click **Install**
 
-`/coach-buddy` and the engagement layer skills (`/cb-init`, `/cb-log`, `/cb-retro`, `/cb-snapshot`) will be available immediately in all your CoWork projects.
+`/coach-buddy` and the engagement layer skills (`/cb-init`, `/cb-log`, `/cb-retro`, `/cb-snapshot`) will be available immediately in all your CoWork projects. No git clone or Node.js required.
+
+> **Building from source**: if you have the repo cloned, run `npm run check:version && npm run build:plugin` to produce a fresh `coach-buddy.plugin` at the repo root.
 
 ### Cursor
 

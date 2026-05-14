@@ -1,0 +1,178 @@
+{
+  "roadmap": {
+    "project_id": "coach-buddy-plugin-distribution",
+    "created_at": "2026-05-14T21:18:06Z",
+    "total_steps": 5,
+    "phases": 2
+  },
+  "phases": [
+    {
+      "id": "01",
+      "name": "Manual release workflow (US-01)",
+      "description": "Version-alignment tooling, updated PUBLISHING.md release procedure, and README install instructions pointing to GitHub Releases. No CI automation yet \u2014 enables a human-driven release with verified version consistency.",
+      "estimated_hours": 3,
+      "deliverables": [
+        "scripts/check-version.js",
+        "package.json (check:version script added)",
+        "PUBLISHING.md (gh release steps + plugin.json checklist item)",
+        "README.md (CoWork install section updated)"
+      ],
+      "steps": [
+        {
+          "id": "01-01",
+          "name": "Write check-version.js script",
+          "description": "Create scripts/check-version.js as an ESM module using Node.js built-ins only. Reads version from package.json (source of truth), plugin.json (plugins/coach-buddy/.claude-plugin/plugin.json), SKILL.md frontmatter (skills/coach-buddy/SKILL.md \u2014 warn only if absent, do not exit non-zero), and the most recent CHANGELOG.md heading (## vX.Y or ## vX.Y.Z). Compares each source to the package.json version. Exits 0 on full alignment. Exits non-zero on any mismatch, printing the name of the offending file.",
+          "criteria": "npm run check:version exists and runs the script; script exits 0 when all sources match; script exits non-zero and prints the offending filename when any mandatory source mismatches package.json; missing SKILL.md version field produces a warning but exits 0; missing CHANGELOG.md heading exits non-zero",
+          "test_file": "tests/unit/check-version.test.js",
+          "scenario_name": "all sources aligned exits 0",
+          "quality_gates": [
+            "No third-party dependencies \u2014 Node.js built-ins only (fs, path, url, process)",
+            "Script is ESM (import/export) consistent with package.json type:module",
+            "Exit code is non-zero (process.exit(1)) on any mandatory mismatch",
+            "Offending filename printed to stderr on mismatch",
+            "SKILL.md absence/missing-version-field is a warning (stderr) not an error"
+          ],
+          "implementation_notes": [
+            "SKILL.md version is in YAML frontmatter: metadata.version field. Parse between --- delimiters with a regex; do not introduce a YAML library.",
+            "CHANGELOG.md heading pattern: /^## v(\\d+\\.\\d+(?:\\.\\d+)?)/m \u2014 match first occurrence only.",
+            "plugin.json path: plugins/coach-buddy/.claude-plugin/plugin.json \u2014 confirm key name by inspecting file at implementation time.",
+            "Use import.meta.url + fileURLToPath to resolve paths relative to the script, not cwd.",
+            "Keep all logic in a single exported function (checkVersions(rootDir)) so unit tests can call it directly without spawning a subprocess."
+          ],
+          "dependencies": [],
+          "files_to_modify": [
+            "CREATE scripts/check-version.js",
+            "CREATE tests/unit/check-version.test.js"
+          ]
+        },
+        {
+          "id": "01-02",
+          "name": "Register check:version npm script",
+          "description": "Add 'check:version': 'node scripts/check-version.js' to the scripts block in package.json so the script is runnable via npm run check:version.",
+          "criteria": "npm run check:version runs scripts/check-version.js without error when all versions are aligned at 1.7.0",
+          "test_file": "",
+          "scenario_name": "",
+          "quality_gates": [
+            "Script key name is exactly check:version (colon separator, consistent with existing test/build scripts)",
+            "No other package.json fields modified"
+          ],
+          "implementation_notes": [
+            "One-line change to the scripts block. No other modifications to package.json."
+          ],
+          "dependencies": [
+            "01-01"
+          ],
+          "files_to_modify": [
+            "MODIFY package.json"
+          ]
+        },
+        {
+          "id": "01-03",
+          "name": "Update PUBLISHING.md with release procedure",
+          "description": "Add GitHub Releases distribution procedure to the Plugin build (CoWork) section of PUBLISHING.md. Include: npm run check:version before build:plugin; the gh release create command after build:plugin; plugin.json in the version-alignment checklist.",
+          "criteria": "PUBLISHING.md includes npm run check:version in the pre-build step; PUBLISHING.md includes 'gh release create v${VERSION} coach-buddy.plugin --title \"v${VERSION}\" --notes \"See CHANGELOG.md\"' in the release procedure; plugin.json appears in the version-alignment checklist alongside package.json and SKILL.md",
+          "test_file": "",
+          "scenario_name": "",
+          "quality_gates": [
+            "No existing checklist items removed or reworded",
+            "gh release create command is copy-pasteable (no broken line wraps)",
+            "CHANGELOG.md release notes guidance is present alongside the gh command"
+          ],
+          "implementation_notes": [
+            "Insert check:version step in the Plugin build section between the checklist and the 'npm run build:plugin' command.",
+            "Add a new 'Distribute via GitHub Releases' subsection after the existing CoWork upload instructions.",
+            "The VERSION variable in the gh command should match the pattern used in PUBLISHING.md; document that it must equal package.json version."
+          ],
+          "dependencies": [
+            "01-01",
+            "01-02"
+          ],
+          "files_to_modify": [
+            "MODIFY PUBLISHING.md"
+          ]
+        },
+        {
+          "id": "01-04",
+          "name": "Update README CoWork install section",
+          "description": "Replace the clone-and-build install instructions in the README CoWork section with a direct GitHub Releases download URL. Users should be directed to download the latest coach-buddy.plugin from https://github.com/danjmfox-ovo/coach-buddy/releases/latest.",
+          "criteria": "README CoWork install section references the GitHub Releases download URL and does not mention clone-and-build as the primary path",
+          "test_file": "",
+          "scenario_name": "",
+          "quality_gates": [
+            "URL is accurate and points to the correct repo releases page",
+            "Clone-and-build instructions are either removed or demoted to a developer/contributing note",
+            "No other README sections modified"
+          ],
+          "implementation_notes": [
+            "Use the canonical releases URL: https://github.com/danjmfox-ovo/coach-buddy/releases/latest",
+            "Keep the CoWork upload steps (Settings > Plugins > Upload plugin > Install) \u2014 only the artifact source changes.",
+            "If the README currently has no CoWork section, add one. If it has a combined section, split or annotate clearly."
+          ],
+          "dependencies": [],
+          "files_to_modify": [
+            "MODIFY README.md"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "02",
+      "name": "CI automation (US-02)",
+      "description": "GitHub Actions workflow that triggers on version tags and workflow_dispatch, runs check:version and build:plugin, then creates a GitHub Release with coach-buddy.plugin attached. No additional secrets beyond GITHUB_TOKEN. Failed workflow must not leave a partial or draft release.",
+      "estimated_hours": 2,
+      "deliverables": [
+        ".github/workflows/release.yml"
+      ],
+      "steps": [
+        {
+          "id": "02-01",
+          "name": "Create GitHub Actions release workflow",
+          "description": "Create .github/workflows/release.yml. Triggers: push to tags matching v*, workflow_dispatch. Steps in order: checkout (full history not needed), setup Node (version from engines.node, i.e. >=18 \u2014 use 22), run npm run check:version (failure stops workflow), run npm run build:plugin with a lightweight JSON schema check replacing claude plugin validate (see implementation notes), create GitHub Release with softprops/action-gh-release or gh CLI attaching coach-buddy.plugin using GITHUB_TOKEN. No draft release step \u2014 release is created atomically on success only.",
+          "criteria": "Workflow file exists at .github/workflows/release.yml triggering on push to v* tags and workflow_dispatch; check:version runs as first substantive step and failure stops the workflow; build:plugin runs using lightweight JSON schema check (not claude plugin validate) and failure stops the workflow; GitHub Release is created with coach-buddy.plugin attached using GITHUB_TOKEN on success only; no partial or draft release is left on workflow failure",
+          "test_file": "",
+          "scenario_name": "",
+          "quality_gates": [
+            "Workflow uses actions/checkout@v4 and actions/setup-node@v4 (pinned major versions)",
+            "GITHUB_TOKEN permissions scoped to contents: write only (principle of least privilege)",
+            "build:plugin step uses the lightweight JSON schema check (node -e inline) not claude plugin validate \u2014 the claude CLI is not available in CI",
+            "Release creation step is the final step \u2014 no step follows it that could leave state on failure",
+            "workflow_dispatch trigger has no required inputs (manual trigger must work with zero configuration)"
+          ],
+          "implementation_notes": [
+            "claude plugin validate is not available in CI \u2014 the build:plugin script in package.json calls it. For CI, override or replace: run npm run build:plugin after patching the script, OR inline the JSON schema check (node -e 'const p=JSON.parse(...); if(!p.skills) process.exit(1)') as a separate workflow step and call the zip steps directly. Coordinate with the build:plugin script owner \u2014 the simplest fix is a separate build:plugin:ci script that skips the claude validate call.",
+            "Use softprops/action-gh-release@v2 for release creation \u2014 it handles tag name extraction from GITHUB_REF automatically and supports file attachment.",
+            "Set env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} at the job level, not step level.",
+            "Node version: 22 (aligns with stack defaults; satisfies engines.node >=18).",
+            "The workflow_dispatch trigger enables manual releases (e.g., hotfixes where tag was already pushed but workflow failed).",
+            "Do not use continue-on-error: true anywhere \u2014 every step must be a hard gate."
+          ],
+          "dependencies": [
+            "01-01",
+            "01-02"
+          ],
+          "files_to_modify": [
+            "CREATE .github/workflows/release.yml"
+          ]
+        }
+      ]
+    }
+  ],
+  "implementation_scope": {
+    "source_directories": [
+      "scripts/",
+      ".github/workflows/"
+    ],
+    "test_directories": [
+      "tests/unit/"
+    ],
+    "excluded_patterns": [
+      "*.DS_Store",
+      "coach-buddy.plugin"
+    ]
+  },
+  "validation": {
+    "status": "pending",
+    "reviewer": "software-crafter",
+    "approved_at": "TODO"
+  }
+}

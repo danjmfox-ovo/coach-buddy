@@ -11,7 +11,7 @@
   - [x] Overwrite guard (`--force` required)
   - [ ] Cursor project-level (`.cursor/` present)
   - [ ] Claude Code user-level (`--global` flag)
-- [ ] `package.json` version matches `SKILL.md` frontmatter and `CHANGELOG.md` heading
+- [ ] Version sources aligned: `package.json`, `plugin.json`, `SKILL.md` frontmatter, and `CHANGELOG.md` heading — run `npm run check:version` to verify
 
 ## Publish
 
@@ -27,7 +27,15 @@ npm publish --access public
 
 ## Plugin build (CoWork)
 
-Build the plugin for upload to Claude CoWork.
+Build the plugin for upload to Claude CoWork or distribution via GitHub Releases.
+
+**Before building — verify all versions agree**
+
+```bash
+npm run check:version
+```
+
+Checks `package.json`, `plugin.json`, `SKILL.md` frontmatter, and `CHANGELOG.md`. Exits non-zero and names the offending file if any source mismatches. Fix mismatches before continuing.
 
 **How to build**
 
@@ -48,10 +56,27 @@ The script validates:
 - `plugin.json` contains a `skills` field (required)
 - Schema compliance via `claude plugin validate`
 
-**How to distribute**
+**How to distribute — CoWork direct upload**
 
 1. In Claude CoWork, go to **Settings** → **Plugins** → **Upload plugin**
 2. Select `coach-buddy.plugin`
 3. Click **Install**
 
-**Note**: The plugin is a file artifact distributed via CoWork upload, not published to npm.
+**How to distribute — GitHub Releases (shareable link)**
+
+1. Confirm `npm run check:version` passed and `coach-buddy.plugin` is freshly built
+2. Set the version variable (must match `package.json`):
+   ```bash
+   VERSION=$(node -e "console.log(require('./package.json').version)")
+   ```
+3. Create the release and attach the artifact:
+   ```bash
+   gh release create "v${VERSION}" coach-buddy.plugin \
+     --title "v${VERSION}" \
+     --notes "See CHANGELOG.md for release notes."
+   ```
+4. Share the release URL: `https://github.com/danjmfox-ovo/coach-buddy/releases/tag/v${VERSION}`
+
+CoWork users can download `coach-buddy.plugin` directly from the release page and upload it via Settings → Plugins — no git clone or Node.js required.
+
+**Note**: `coach-buddy.plugin` is a build artifact — it is in `.gitignore` and distributed exclusively via GitHub Releases or direct upload.
