@@ -5,7 +5,7 @@
 **Test script**: `tests/acceptance/coach-buddy-slice-03/test-script.md`
 **Feature**: `tests/acceptance/coach-buddy-slice-03/walking-skeleton.feature`
 **Validated by**: Dan Fox
-**Environment**: Full install (Scenarios 1-2), Minimal install (Scenario 3) — real Claude Chat team project
+**Environment**: Full install (Scenarios 1-2), Minimal install (Scenario 3) — personal coaching project
 
 ---
 
@@ -25,7 +25,7 @@ Notes:
 ### Scenario 1 — Full coaching conversation (Story 2, Slice 03b)
 
 Pass: **Yes**
-Coach self-report: Not formally recorded — conversation quality was strong; three-turn arc felt natural and useful
+Coach self-report: Not formally recorded — accepted
 
 Notes:
 - All five message 1 checklist items met
@@ -37,9 +37,10 @@ Notes:
 ### Scenario 2 — In-context activation with team artefacts (Story 2, Slice 03b)
 
 Pass: **Yes**
+Coach self-report: Not formally recorded — accepted
 
 Notes:
-- Screenshot used for board context (not text paste) — worked well; tool read column names, assignees, and WIP distribution
+- Screenshot used for board context (not text paste) — worked well; tool read board structure (columns, WIP distribution)
 - Board treated as coaching context throughout; no PM-mode prescription
 - Significant time overhead: finding board, screenshotting, uploading — not conversation time. MCP path (CoWork + Jira) would eliminate this.
 - ER-004 candidate: "in the Cynefin sense" (message 1) without "(Snowden)"

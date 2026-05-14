@@ -1,11 +1,12 @@
 ---
 name: coach-buddy
-version: 1.7
 description: >-
   Thinking partner for Agile coaches working through real situations.
   Situation-focus by default. Framework discovery available on interest signals.
-user-invocable: true
-argument-hint: '[situation description] — describe what you want to think through'
+metadata:
+  version: "1.7"
+  user-invocable: true
+  argument-hint: '[situation description] — describe what you want to think through'
 ---
 
 # Coach Buddy
