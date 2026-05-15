@@ -158,9 +158,46 @@ Then the two-sentence risk read.
 
 ---
 
+## Coaching context (from COACHING_LOG.md)
+
+After writing the snapshot file and printing the risk read, append a coaching context
+section if `COACHING_LOG.md` exists for the engagement.
+
+**Check**: attempt to read `engagements/<slug>/COACHING_LOG.md`.
+
+- If the file does not exist or is empty (header only, no entries): skip this section entirely. No error.
+- If the file exists with entries: select up to 3 entries, most-recent-first by `date:` field.
+
+**Selection**: take the 3 entries with the most recent `date:` values. If fewer than 3 entries
+exist, take all. Entries with `**Hypothesis**: (to fill)` are included (show observation only).
+
+**Append to the snapshot file** (after the `## Waiting` section):
+
+```markdown
+## Coaching context
+
+_Most recent entries from COACHING_LOG.md — use /cb-validate to close hypothesis loops_
+
+**{YYYY-MM-DD}** {if mode present and not thinking-partner: `[{mode}]` }
+Observed: {first 120 characters of **Observed** value, trimmed}
+Hypothesis: {first 120 characters of **Hypothesis** value, or "(not yet written)" if (to fill)}
+
+```
+
+Repeat for each of the up to 3 entries, separated by a blank line. No `---` dividers.
+
+If the `**Hypothesis**` value is `(to fill)`, write: `Hypothesis: (not yet written)`.
+
+**Do not** append the section to the chat risk read. The risk read (two sentences in chat)
+is unchanged. The coaching context appears only in the written file.
+
+---
+
 ## Guardrails
 
 - Do not write team names, issue titles, assignee names, or any board content into the skill logic itself. The snapshot file is generated at runtime from live data.
 - Do not fabricate board items if the tool returns no data for a section. Write `_(none)_`.
 - Do not interpret WIP age flags as problems in the file — they are flags, not diagnoses. Interpretation belongs in the coaching conversation.
 - The risk read is observational. It names a pattern; it does not explain it.
+- The coaching context section is additive — it never replaces or modifies board data.
+- Do not include full log entries in the snapshot. Summaries only (120 char truncation).

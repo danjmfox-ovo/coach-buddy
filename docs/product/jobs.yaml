@@ -190,6 +190,31 @@ jobs:
     validated: false
     note: "Emerged from reference implementation (2026-05-14)."
 
+  - id: hypothesis-validation
+    title: "Close the loop on coaching hypotheses by reviewing which predictions are now ripe for validation"
+    job_story: >
+      When I have accumulated several logged hypotheses across coaching sessions,
+      I want a structured review that surfaces which ones I can now validate
+      (enough time has passed, or an intervention has occurred),
+      so I can build a coaching practice that learns from misses and confirming moments,
+      not just one that records them.
+    dimensions:
+      functional: "Surface aged hypotheses; prompt validation; update status in COACHING_LOG.md"
+      emotional: "Feel like I'm actually learning from my coaching, not just noting things; the arc closes, not just grows"
+      social: "Coaching practice that visibly improves over time; evidence of learning from experience, not just evidence of observation"
+    four_forces:
+      push: "Hypotheses pile up and are never revisited; coaching arc is linear input only; observation becomes a Post-it that disappears"
+      pull: "A review mechanism that asks 'did X happen?' — closes the loop and builds a learning arc, not just a record"
+      anxiety: "Adding another step to an already effortful practice; worry that validation reveals the hypotheses were wrong all along"
+      habit: "Manually re-reads old log entries inconsistently, or doesn't revisit them at all"
+    opportunity:
+      importance: high
+      current_satisfaction: very-low
+      score: 8.5
+      rationale: "J7 records; nothing closes the loop. This is the missing final step of the Safety-II arc. High importance because hypothesis validation is what distinguishes a testable coaching arc from an impressionistic journal. Very low current satisfaction because no mechanism exists."
+    validated: false
+    note: "Emerged from AI reviewer analysis of coach-buddy engagement layer (2026-05-14). Identified as the most critical gap: 'captures perfectly but validates nothing.'"
+
 tension_note: >
   J1 vs J2: The two coaching experience jobs want different orientations.
   J1 (thinking-partner) wants the tool to follow — serve the situation, not introduce new material.

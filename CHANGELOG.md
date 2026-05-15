@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.8 (2026-05-15)
+
+### Added
+- **cb-validate** (`skills/cb-validate/SKILL.md`): new skill that closes the hypothesis-validation loop in `COACHING_LOG.md`. Reads all logged hypotheses, groups by age (>14d / 7-14d / <7d), leads an interactive validation review, and writes `**Validation**: confirmed|disconfirmed|deferred ({date})` in-place. Surfaces advisory-mode pattern note when ≥2 entries were logged in that mode. (Slice 01)
+
+### Changed
+- **cb-snapshot**: appends a `## Coaching context` section to the snapshot file containing the 3 most recent `COACHING_LOG.md` entries (Observed + Hypothesis summaries). Chat risk read is unchanged. Graceful no-op when no coaching log exists. (Slice 02)
+- **cb-log**: accepts `--mode thinking-partner|advisory|facilitation` flag. Writes `mode:` field to entry frontmatter. Defaults to `thinking-partner` when omitted. Rejects unrecognised mode values with a clear message. (Slice 03)
+- **cb-init**: `CONTEXT.md` Stakeholders section upgraded from a flat comment to a structured 4-column table (Role, Influence, Inclusion notes, External pressures) plus a "Who am I NOT seeing?" reflection prompt. `COACHING_LOG.md` entry format template now shows the `mode:` field. (Slice 03)
+
+### Architecture
+- **ADR-011**: documents cb-validate in-place mutation strategy (validation result appended to matched entry in COACHING_LOG.md; same id-match mechanism as cb-log --update).
+- **jobs.yaml**: new `hypothesis-validation` job added (closes the loop on Safety-II-informed hypothesis capture).
+
+---
+
 ## v1.7 (2026-05-12)
 
 ### Added
