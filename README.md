@@ -96,7 +96,7 @@ For ongoing engagements — coaching the same team across weeks or months — th
 
 ### What it is
 
-Four companion skills that maintain a folder of structured files for each engagement:
+Five companion skills that maintain a folder of structured files for each engagement:
 
 | Skill | What it does |
 |-------|-------------|
@@ -104,13 +104,15 @@ Four companion skills that maintain a folder of structured files for each engage
 | `/cb-log` | Captures a Safety-II-informed coaching observation after a session |
 | `/cb-retro` | Adds or updates retro actions in the tracker |
 | `/cb-snapshot` | Writes a current board snapshot before a coaching conversation |
+| `/cb-validate` | Reviews logged hypotheses and closes the loop — confirmed, disconfirmed, or deferred |
 
 ### When to use it
 
 Use the engagement layer when you are coaching a team over time and want:
 - Observations and hypotheses to accumulate across sessions (not reset each conversation)
 - Retro actions tracked in the same place as coaching observations
-- A current board picture available before each `/coach-buddy` conversation
+- A current board picture available before each `/coach-buddy` conversation (snapshot now includes recent log entries)
+- A periodic review of your predictions — confirmed, disconfirmed, or still open
 - Context portable between Claude Code and Claude Chat (see below)
 
 For one-off sessions or exploratory conversations, the engagement layer is not needed — just use `/coach-buddy` directly.
@@ -121,10 +123,11 @@ For one-off sessions or exploratory conversations, the engagement layer is not n
 
 ```bash
 # From the coach-buddy repo root, into your project:
-cp -r skills/cb-init  .claude/skills/cb-init
-cp -r skills/cb-log   .claude/skills/cb-log
-cp -r skills/cb-retro .claude/skills/cb-retro
+cp -r skills/cb-init     .claude/skills/cb-init
+cp -r skills/cb-log      .claude/skills/cb-log
+cp -r skills/cb-retro    .claude/skills/cb-retro
 cp -r skills/cb-snapshot .claude/skills/cb-snapshot
+cp -r skills/cb-validate .claude/skills/cb-validate
 ```
 
 **Initialise** a new engagement:
@@ -143,14 +146,20 @@ Answer the prompts (team name, slug, project management tool). An `engagements/<
 # After a team session — capture what you noticed
 /cb-log The team ran a retro where every action was process-level. No one named the underlying dynamic.
 
+# Tag the mode when you gave direct input rather than coaching
+/cb-log The sponsor asked me directly what to do about the delivery pressure. I told them. --mode advisory
+
 # After a retrospective — log the actions
 /cb-retro --paste "<paste your retro output here>"
 
-# Before a coaching conversation — get a current board picture
+# Before a coaching conversation — get a current board picture (now includes recent log entries)
 /cb-snapshot
 
 # Start a coaching conversation
 /coach-buddy I'm preparing for a 1:1 with the tech lead. The snapshot is showing 8 stories in WIP across 3 people.
+
+# Every few weeks — close the loop on your predictions
+/cb-validate
 ```
 
 ### Claude Chat project knowledge sync
@@ -207,8 +216,9 @@ You don't need clean data. A rough description of what feels off is enough to st
 | [`skills/cb-log/`](skills/cb-log/) | Coaching log capture skill |
 | [`skills/cb-retro/`](skills/cb-retro/) | Retro action tracking skill |
 | [`skills/cb-snapshot/`](skills/cb-snapshot/) | Board snapshot skill |
-| [`plugins/coach-buddy/`](plugins/coach-buddy/) | CoWork plugin (all five skills packaged for upload) |
-| [`docs/product/architecture/`](docs/product/architecture/) | Ten ADRs documenting architectural decisions |
+| [`skills/cb-validate/`](skills/cb-validate/) | Hypothesis validation skill |
+| [`plugins/coach-buddy/`](plugins/coach-buddy/) | CoWork plugin (all six skills packaged for upload) |
+| [`docs/product/architecture/`](docs/product/architecture/) | Eleven ADRs documenting architectural decisions |
 
 ---
 
