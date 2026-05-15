@@ -6,7 +6,7 @@ description: >-
   Use after any team session, ceremony, or interaction worth tracking.
 metadata:
   user-invocable: true
-  argument-hint: '<observation> [--update <id> <field> <value>] [--slug <team-slug>]'
+  argument-hint: '<observation> [--update <id> <field> <value>] [--mode <value>] [--slug <team-slug>]'
 ---
 
 # cb-log — Coaching Log Capture
@@ -30,6 +30,16 @@ Invoked as: `/cb-log <observation text>` or just `/cb-log` (then ask for the obs
 Ask (or use what was provided):
 - What did you observe? (Work-as-Done — what actually happened, not what should have happened)
 - In what context? (ceremony or moment — e.g. "sprint review", "standup", "1:1 with tech lead", "reviewing the board")
+
+**Step 1b — Capture mode (optional)**
+
+If `--mode <value>` was passed, validate it against the allowed values:
+`thinking-partner` | `advisory` | `facilitation`
+
+If the value is unrecognised, reject immediately:
+> "Mode must be one of: thinking-partner, advisory, facilitation"
+
+If `--mode` was not passed, default to `thinking-partner`. Do not ask.
 
 **Step 2 — Generate entry ID**
 
@@ -56,6 +66,7 @@ Entry format:
 ---
 id: {id}
 date: {YYYY-MM-DD}
+mode: {mode}
 
 **Observed**: {observed}
 **Context**: {context}

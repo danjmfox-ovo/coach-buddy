@@ -266,3 +266,47 @@ C4Container
     Rel(coachbuddy, coachinglog, "Reads if present", "Optional context")
     Rel(coachbuddy, snapshot, "Reads most recent if present", "Optional context")
 ```
+
+---
+
+## Application Architecture — cb-review-improvements
+
+**Wave**: DESIGN (2026-05-15)
+**Feature**: cb-review-improvements
+**Pattern**: Cutler-pattern extension (ADR-010); additive engagement layer improvements
+
+### Summary
+
+Adds `cb-validate` (new skill) and extends `cb-snapshot`, `cb-log`, `cb-init` with three targeted improvements:
+hypothesis validation loop, coaching context in snapshots, advisory mode tracking, and structured stakeholder template.
+
+### Component Changes
+
+| Component | Change | Key detail |
+|-----------|--------|------------|
+| `cb-validate` (new) | CREATE NEW | Reads COACHING_LOG.md; groups hypotheses by age (>14d / 7-14d / <7d); interactive validation loop; writes `**Validation**: {status} ({date})` in-place via id-match mechanism |
+| `cb-snapshot` | EXTEND | After snapshot write: reads 3 most recent COACHING_LOG entries; appends `## Relevant coaching context` section to snapshot file. Graceful no-op if COACHING_LOG absent. |
+| `cb-log` | EXTEND | Accepts `--mode thinking-partner\|advisory\|facilitation`; writes `mode:` field to entry frontmatter; defaults to `thinking-partner` |
+| `cb-init` | EXTEND | CONTEXT.md Stakeholders section: flat comment → 4-column table (Role, Influence, Inclusion notes, External pressures) + "Who am I NOT seeing?" prompt |
+
+### COACHING_LOG.md Entry Format Update
+
+The entry format gains two optional fields (`mode` and `**Validation**`). Existing entries without these fields remain valid — both fields are optional and skipped gracefully.
+
+```markdown
+---
+id: YYYY-MM-DD-NNN
+date: YYYY-MM-DD
+mode: thinking-partner          ← written by cb-log (new, optional)
+
+**Observed**: ...
+**Hypothesis**: If [X] then [Y]
+**Validation**: confirmed (YYYY-MM-DD)   ← written by cb-validate (new, optional)
+---
+```
+
+### ADR Index Update
+
+| ADR | Title | Status |
+|-----|-------|--------|
+| [ADR-011](adr-011-cb-validate-inplace-validation.md) | cb-validate in-place validation strategy | Accepted |

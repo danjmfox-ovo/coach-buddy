@@ -92,7 +92,12 @@ For `tool_type = "none"`: set `project_key` and `board_id` to `""`.
 <!-- Key repositories and what they contain. -->
 
 ## Stakeholders
-<!-- Names, roles, relationships, influence patterns. -->
+
+| Role | Influence | Inclusion notes | External pressures |
+|------|-----------|-----------------|-------------------|
+| <!-- Name, title --> | <!-- High / Medium / Low --> | <!-- Included in key decisions? Marginalised? Whose voice is missing? --> | <!-- Deadlines, pressures, incentives shaping their behaviour --> |
+
+<!-- Who am I NOT seeing? (individuals, groups, or perspectives absent from your current picture) -->
 
 ## Inherited Commitments & Constraints
 <!-- What the team inherited. Contracts, timelines, dependencies, technical debt. -->
@@ -113,6 +118,7 @@ For `tool_type = "none"`: set `project_key` and `board_id` to `""`.
 ---
 id: YYYY-MM-DD-NNN
 date: YYYY-MM-DD
+mode: thinking-partner
 
 **Observed**: [What you saw — Work-as-Done framing, not interpretation]
 **Context**: [Ceremony or moment — e.g. sprint review, standup, 1:1]
