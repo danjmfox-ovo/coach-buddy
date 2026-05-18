@@ -4,9 +4,6 @@ description: >-
   Captures or updates a structured coaching observation in COACHING_LOG.md.
   Safety-II informed: observations are Work-as-Done, hypotheses are testable If/Then.
   Use after any team session, ceremony, or interaction worth tracking.
-  Also trigger when the user describes something they noticed in their coaching context
-  that sounds like a Work-as-Done observation — even if they don't explicitly say 'coaching log'.
-allowed-tools: Read, Write, Edit
 metadata:
   user-invocable: true
   argument-hint: '<observation> [--update <id> <field> <value>] [--mode <value>] [--slug <team-slug>]'

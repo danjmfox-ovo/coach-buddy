@@ -4,7 +4,6 @@ description: >-
   Writes a dated board snapshot to engagements/<team-slug>/snapshots/YYYY-MM-DD-board.md.
   Four sections: WIP, Progress (last 14 days), Runway, Waiting. Age-flags WIP items beyond
   threshold. Prints a two-sentence risk read in chat. Use before coaching conversations.
-allowed-tools: Read, Write
 metadata:
   user-invocable: true
   argument-hint: '[--slug <team-slug>] [--days <lookback-days>]'

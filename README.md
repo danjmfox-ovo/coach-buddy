@@ -69,7 +69,7 @@ Cowork only discovers skills from the **user-level** directory. Project-level in
 cp -r . ~/.claude/skills/coach-buddy/
 ```
 
-> The project-level path (`.claude/skills/coach-buddy/`) works in Claude Code CLI when running from within the project, but is **not** picked up by Cowork. Use the plugin install below if you prefer not to manage the skills directory manually.
+> The project-level path (`.claude/skills/coach-buddy/`) works in Claude Code CLI when running from within the project, but is **not** picked up by Cowork.
 
 **If your environment has a Jira, Linear, or similar MCP**: Coach Buddy can read board state directly. Frame your prompt around what you want to think about rather than asking it to analyse the data — the goal is a coaching conversation, not a ticket audit.
 

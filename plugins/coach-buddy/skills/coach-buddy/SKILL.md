@@ -3,11 +3,8 @@ name: coach-buddy
 description: >-
   Thinking partner for Agile coaches working through real situations.
   Situation-focus by default. Framework discovery available on interest signals.
-  Use when the user invokes /coach-buddy, wants to think through a coaching situation,
-  is stuck on a team dynamic or intervention, or wants to explore what might be going on.
-allowed-tools: Read
 metadata:
-  version: "1.7"
+  version: "1.8.0"
   user-invocable: true
   argument-hint: '[situation description] — describe what you want to think through'
 ---

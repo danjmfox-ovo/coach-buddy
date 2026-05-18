@@ -4,7 +4,6 @@ description: >-
   Scaffolds a new coaching engagement folder. Creates CONTEXT.md, COACHING_LOG.md,
   RETRO_ACTIONS.md, HISTORY.md, config.json, and a snapshots/ subdirectory under
   engagements/<team-slug>/. Use when starting a new team engagement.
-allowed-tools: Read, Write
 metadata:
   user-invocable: true
   argument-hint: '[--force] — re-run on an existing slug without confirmation prompt'
