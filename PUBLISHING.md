@@ -52,9 +52,12 @@ npm run build:plugin
 
 **Build validation**
 
-The script validates:
-- `plugin.json` contains a `skills` field (required)
-- Schema compliance via `claude plugin validate`
+`npm run build:plugin` runs `node scripts/validate-plugin.js` before zipping. It checks:
+- `plugin.json` has all required fields: `name`, `version`, `description`, `author`, `repository`, `license`, `keywords`, `skills`
+- Every `SKILL.md` has `user-invocable: true` as a **top-level** key (CoWork rejects it nested under `metadata:`)
+- No angle brackets (`<`, `>`) in `description` or `argument-hint` frontmatter values (CoWork HTML-sanitises these fields — use `[placeholder]` not `<placeholder>`)
+
+> **Note**: `claude plugin validate` only validates the manifest JSON — it does not replicate CoWork's zip validator. The only reliable gate is a real CoWork upload attempt.
 
 **How to distribute — CoWork direct upload**
 
