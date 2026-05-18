@@ -5,7 +5,7 @@
  * Validates plugin structure before building the .plugin zip.
  * Catches the two failure modes that cause "invalid plugin format" on CoWork upload:
  *   1. plugin.json missing required fields (skills, version, repository, license, keywords)
- *   2. SKILL.md frontmatter missing the metadata: block (user-invocable, argument-hint stripped)
+ *   2. SKILL.md frontmatter missing top-level user-invocable: true (CoWork rejects metadata: nesting)
  *
  * Usage (CLI — run before zipping):
  *   node scripts/validate-plugin.js
@@ -48,8 +48,8 @@ export function validatePluginJson(content) {
  * Validate a SKILL.md file's YAML frontmatter.
  * Checks:
  *   - Frontmatter delimiters (--- ... ---) exist
- *   - Top-level `metadata:` block is present
- *   - `user-invocable: true` is present (required for CoWork skill discovery)
+ *   - `user-invocable: true` is a top-level key (CoWork rejects it nested under metadata:)
+ *   - No angle brackets in description or argument-hint (CoWork HTML-sanitises these fields)
  *
  * @param {string} filename  Relative path used in error messages
  * @param {string} content   Raw SKILL.md content
@@ -64,12 +64,17 @@ export function validateSkillFrontmatter(filename, content) {
   const fm = match[1]
   const errors = []
 
-  if (!/^metadata:/m.test(fm)) {
-    errors.push(`${filename}: missing top-level 'metadata:' block`)
+  if (!/^user-invocable:\s*true/m.test(fm)) {
+    errors.push(`${filename}: missing top-level 'user-invocable: true' (must not be nested under metadata:)`)
   }
 
-  if (!/user-invocable:\s*true/.test(fm)) {
-    errors.push(`${filename}: missing 'user-invocable: true'`)
+  if (/^metadata:/m.test(fm)) {
+    errors.push(`${filename}: 'metadata:' block found — CoWork rejects it; promote user-invocable and argument-hint to top-level keys`)
+  }
+
+  const angleLines = fm.split('\n').filter(l => /^(description|argument-hint):/.test(l) || fm.includes('<')).filter(l => /<\w/.test(l))
+  if (angleLines.length > 0) {
+    errors.push(`${filename}: angle brackets in frontmatter fields will fail CoWork validation — replace <x> with [x]`)
   }
 
   return { ok: errors.length === 0, errors }

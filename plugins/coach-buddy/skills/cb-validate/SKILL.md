@@ -2,11 +2,10 @@
 name: cb-validate
 description: >-
   Reviews logged coaching hypotheses and closes the loop by marking each as
-  confirmed, disconfirmed, or deferred. Groups by age (>14 days, 7-14 days, <7 days).
+  confirmed, disconfirmed, or deferred. Groups by age (over 14 days, 7-14 days, under 7 days).
   Use when you want to revisit predictions from past sessions and see which landed.
-metadata:
-  user-invocable: true
-  argument-hint: '[--slug <team-slug>]'
+user-invocable: true
+argument-hint: '[--slug [team-slug]]'
 ---
 
 # cb-validate — Hypothesis Validation

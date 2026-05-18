@@ -3,10 +3,9 @@ name: cb-init
 description: >-
   Scaffolds a new coaching engagement folder. Creates CONTEXT.md, COACHING_LOG.md,
   RETRO_ACTIONS.md, HISTORY.md, config.json, and a snapshots/ subdirectory under
-  engagements/<team-slug>/. Use when starting a new team engagement.
-metadata:
-  user-invocable: true
-  argument-hint: '[--force] — re-run on an existing slug without confirmation prompt'
+  engagements/[team-slug]/. Use when starting a new team engagement.
+user-invocable: true
+argument-hint: '[--force] — re-run on an existing slug without confirmation prompt'
 ---
 
 # cb-init — Engagement Scaffolding

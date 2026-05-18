@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { validatePluginJson, validateSkillFrontmatter, validatePlugin } from '../../scripts/validate-plugin.js'
 
 // ---------------------------------------------------------------------------
-// Fixtures — valid state (matches HEAD / v1.8.0)
+// Fixtures — valid state (CoWork-compatible flat frontmatter)
 // ---------------------------------------------------------------------------
 
 const VALID_PLUGIN_JSON = JSON.stringify({
@@ -21,9 +21,8 @@ const VALID_SKILL_MD = [
   'name: cb-init',
   'description: >-',
   '  Scaffolds a new coaching engagement folder.',
-  'metadata:',
-  '  user-invocable: true',
-  "  argument-hint: '[--force] — re-run without confirmation'",
+  'user-invocable: true',
+  "argument-hint: '[--force] — re-run without confirmation'",
   '---',
   '',
   '# cb-init',
@@ -66,26 +65,25 @@ describe('validatePluginJson — regression: working-tree corruption', () => {
 })
 
 // ---------------------------------------------------------------------------
-// validateSkillFrontmatter
+// validateSkillFrontmatter — valid (flat frontmatter, CoWork-compatible)
 // ---------------------------------------------------------------------------
 
 describe('validateSkillFrontmatter — valid input', () => {
-  it('accepts a SKILL.md with proper metadata block', () => {
+  it('accepts flat frontmatter with top-level user-invocable', () => {
     const result = validateSkillFrontmatter('cb-init/SKILL.md', VALID_SKILL_MD)
     expect(result.ok).toBe(true)
     expect(result.errors).toEqual([])
   })
 
-  it('accepts coach-buddy SKILL.md with version in metadata', () => {
+  it('accepts coach-buddy SKILL.md with version at top level', () => {
     const content = [
       '---',
       'name: coach-buddy',
       'description: >-',
       '  Thinking partner for Agile coaches.',
-      'metadata:',
-      '  version: "1.8.0"',
-      '  user-invocable: true',
-      "  argument-hint: '[situation] — describe what you want to think through'",
+      'version: "1.8.0"',
+      'user-invocable: true',
+      "argument-hint: '[situation] — describe what you want to think through'",
       '---',
       '',
       '# Coach Buddy',
@@ -95,31 +93,34 @@ describe('validateSkillFrontmatter — valid input', () => {
   })
 })
 
-describe('validateSkillFrontmatter — regression: metadata block removed', () => {
-  it('rejects SKILL.md missing the metadata: top-level block', () => {
-    const broken = [
-      '---',
-      'name: cb-init',
-      'description: >-',
-      '  Scaffolds a new coaching engagement folder.',
-      "  argument-hint: '[--force] — re-run without confirmation'",
-      '---',
-      '',
-      '# cb-init',
-    ].join('\n')
-    const result = validateSkillFrontmatter('cb-init/SKILL.md', broken)
-    expect(result.ok).toBe(false)
-    expect(result.errors.some(e => e.includes('metadata'))).toBe(true)
-  })
+// ---------------------------------------------------------------------------
+// validateSkillFrontmatter — regression: metadata: nesting (original failure)
+// ---------------------------------------------------------------------------
 
-  it('rejects SKILL.md missing user-invocable: true', () => {
+describe('validateSkillFrontmatter — regression: metadata: block present', () => {
+  it('rejects SKILL.md with user-invocable nested under metadata:', () => {
     const broken = [
       '---',
       'name: cb-init',
       'description: >-',
       '  Scaffolds a new coaching engagement folder.',
       'metadata:',
+      '  user-invocable: true',
       "  argument-hint: '[--force]'",
+      '---',
+    ].join('\n')
+    const result = validateSkillFrontmatter('cb-init/SKILL.md', broken)
+    expect(result.ok).toBe(false)
+    expect(result.errors.some(e => e.includes('metadata'))).toBe(true)
+  })
+
+  it('rejects SKILL.md missing user-invocable: true entirely', () => {
+    const broken = [
+      '---',
+      'name: cb-init',
+      'description: >-',
+      '  Scaffolds a new coaching engagement folder.',
+      "argument-hint: '[--force]'",
       '---',
     ].join('\n')
     const result = validateSkillFrontmatter('cb-init/SKILL.md', broken)
@@ -148,6 +149,44 @@ describe('validateSkillFrontmatter — regression: metadata block removed', () =
 })
 
 // ---------------------------------------------------------------------------
+// validateSkillFrontmatter — regression: angle brackets in frontmatter
+// ---------------------------------------------------------------------------
+
+describe('validateSkillFrontmatter — regression: angle brackets in frontmatter', () => {
+  it('rejects SKILL.md with angle brackets in description', () => {
+    const broken = [
+      '---',
+      'name: cb-init',
+      'description: >-',
+      '  Scaffolds engagements/<team-slug>/.',
+      'user-invocable: true',
+      "argument-hint: '[--force]'",
+      '---',
+    ].join('\n')
+    const result = validateSkillFrontmatter('cb-init/SKILL.md', broken)
+    expect(result.ok).toBe(false)
+    expect(result.errors.some(e => e.includes('angle brackets'))).toBe(true)
+  })
+
+  it('accepts SKILL.md with angle brackets only in body (not frontmatter)', () => {
+    const content = [
+      '---',
+      'name: cb-init',
+      'description: >-',
+      '  Scaffolds a new coaching engagement folder.',
+      'user-invocable: true',
+      "argument-hint: '[--force]'",
+      '---',
+      '',
+      '# cb-init',
+      'Creates `engagements/<team-slug>/` directory.',
+    ].join('\n')
+    const result = validateSkillFrontmatter('cb-init/SKILL.md', content)
+    expect(result.ok).toBe(true)
+  })
+})
+
+// ---------------------------------------------------------------------------
 // validatePlugin — aggregate
 // ---------------------------------------------------------------------------
 
@@ -165,15 +204,16 @@ describe('validatePlugin — valid state', () => {
   })
 })
 
-describe('validatePlugin — regression: full working-tree corruption', () => {
-  it('surfaces errors from both plugin.json and SKILL.mds', () => {
+describe('validatePlugin — regression: CoWork upload failures', () => {
+  it('catches metadata: nesting and missing plugin.json fields together', () => {
     const brokenPluginJson = JSON.stringify({ name: 'coach-buddy', description: 'x', author: {} })
     const brokenSkillMd = [
       '---',
       'name: cb-init',
       'description: >-',
       '  Scaffolds a folder.',
-      "  argument-hint: '[--force]'",
+      'metadata:',
+      '  user-invocable: true',
       '---',
     ].join('\n')
     const result = validatePlugin({

@@ -5,9 +5,8 @@ description: >-
   status updates by ID, and bulk extraction from pasted retro output.
   Use after retrospectives to track follow-through in the engagement folder.
 allowed-tools: Read, Write, Edit
-metadata:
-  user-invocable: true
-  argument-hint: '<action> [--update <id> <field> <value>] [--paste "<raw text>"] [--slug <team-slug>]'
+user-invocable: true
+argument-hint: '[action] [--update [id] [field] [value]] [--paste "[raw text]"] [--slug [team-slug]]'
 ---
 
 # cb-retro — Retro Action Tracking
