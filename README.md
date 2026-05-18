@@ -49,7 +49,7 @@ Use this when you want `/coach-buddy` available inside a team's existing project
 
 Type `/coach-buddy` in any conversation to activate the full thinking-partner pipeline.
 
-### Claude Code
+### Claude Code CLI
 
 ```bash
 # Project-level
@@ -60,6 +60,16 @@ cp -r . ~/.claude/skills/coach-buddy/
 ```
 
 `/coach-buddy` registers as a slash command — more reliable than the soft-activation convention used in Chat Projects.
+
+### Cowork (skills directory)
+
+Cowork only discovers skills from the **user-level** directory. Project-level installs are silently ignored and `/coach-buddy` will not appear:
+
+```bash
+cp -r . ~/.claude/skills/coach-buddy/
+```
+
+> The project-level path (`.claude/skills/coach-buddy/`) works in Claude Code CLI when running from within the project, but is **not** picked up by Cowork. Use the plugin install below if you prefer not to manage the skills directory manually.
 
 **If your environment has a Jira, Linear, or similar MCP**: Coach Buddy can read board state directly. Frame your prompt around what you want to think about rather than asking it to analyse the data — the goal is a coaching conversation, not a ticket audit.
 
