@@ -149,16 +149,16 @@ Scenario: Build fails fast if plugin.json is missing required fields
 
 ## Definition of Done
 
-- [ ] `plugin.json` moved from `plugins/coach-buddy/plugin/plugin.json` to `plugin/plugin.json` at repo root
-- [ ] `plugins/` directory deleted from the repo (no tracked files remain)
-- [ ] `.gitignore` line `plugins/coach-buddy/skills/` removed
-- [ ] `scripts/sync-skills.js` — output directory derives from `PLUGIN_BUILD_DIR` env var (defaults to `$TMPDIR/coach-buddy-plugin-build`)
-- [ ] `scripts/validate-plugin.js` — `pluginJsonPath` points to `plugin/plugin.json`; `skillsDir` reads from `PLUGIN_BUILD_DIR`
-- [ ] `scripts/check-version.js` — `pluginJson` source points to `plugin/plugin.json`
-- [ ] `package.json` `build:plugin` and `build:plugin:ci` updated — no `cd plugins/coach-buddy`
-- [ ] `npm run build:plugin` passes end-to-end: valid `coach-buddy.plugin` produced, `git status` clean
-- [ ] `npm run check:version` passes: reads from new manifest location
-- [ ] `npm test` passes: no broken imports or path assertions in existing tests
-- [ ] All five UAT scenarios pass
-- [ ] Conventional commit: `refactor(build): move plugin.json to repo root, eliminate plugins/ staging dir`
+- [x] `plugin.json` moved from `plugins/coach-buddy/plugin/plugin.json` to `plugin/plugin.json` at repo root
+- [x] `plugins/` directory deleted from the repo (no tracked files remain)
+- [x] `.gitignore` line `plugins/coach-buddy/skills/` removed
+- [x] `scripts/sync-skills.js` — output directory derives from `PLUGIN_BUILD_DIR` env var (defaults to `$TMPDIR/coach-buddy-plugin-build`)
+- [x] `scripts/validate-plugin.js` — `pluginJsonPath` points to `plugin/plugin.json`; `skillsDir` reads from `PLUGIN_BUILD_DIR`
+- [x] `scripts/check-version.js` — `pluginJson` source points to `plugin/plugin.json`
+- [x] `package.json` `build:plugin` and `build:plugin:ci` updated — no `cd plugins/coach-buddy`
+- [x] `npm run build:plugin` passes end-to-end: valid `coach-buddy.plugin` produced, `git status` clean
+- [x] `npm run check:version` passes: reads from new manifest location
+- [x] `npm test` passes: no broken imports or path assertions in existing tests
+- [x] All five UAT scenarios pass
+- [x] Conventional commit: `refactor(build): move plugin.json to repo root, eliminate plugins/ staging dir`
 

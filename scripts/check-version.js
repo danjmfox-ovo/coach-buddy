@@ -7,7 +7,7 @@
  *
  * Checked sources:
  *   - package.json                              (required, source of truth)
- *   - plugins/coach-buddy/.claude-plugin/plugin.json  (required)
+ *   - plugin/plugin.json                         (required)
  *   - skills/coach-buddy/SKILL.md frontmatter   (optional — warns but does not block)
  *   - CHANGELOG.md                              (required — heading must exist for the release version)
  *
