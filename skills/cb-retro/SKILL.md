@@ -5,8 +5,9 @@ description: >-
   status updates by ID, and bulk extraction from pasted retro output.
   Use after retrospectives to track follow-through in the engagement folder.
 metadata:
+  allowed-tools: Read, Write, Edit
   user-invocable: true
-  argument-hint: '<action> [--update <id> <field> <value>] [--paste "<raw text>"] [--slug <team-slug>]'
+  argument-hint: '[action] [--update [id] [field] [value]] [--paste "[raw text]"] [--slug [team-slug]]'
 ---
 
 # cb-retro — Retro Action Tracking
@@ -17,7 +18,24 @@ Manages the `RETRO_ACTIONS.md` table for a coaching engagement. Three modes: add
 
 ## Reading the engagement config
 
-Read `engagements/<slug>/config.json` to find the engagement path. If `--slug <team-slug>` is passed, use that slug. If not and only one engagement folder exists, use that. If multiple exist and no slug is specified, ask which engagement.
+**Step 1 — Check for root layout**
+
+Attempt to read `./config.json`. If the file exists and contains both a `version` field and an `engagement.slug` field, this is a root-layout engagement:
+- Set `engagement_path` = `./`
+- Set `slug` = value of `engagement.slug`
+- Skip Step 2 and proceed directly to the skill's main logic using `engagement_path`
+
+**Step 2 — Fall back to legacy layout**
+
+If `./config.json` is absent or does not contain the engagement schema, look for an engagement under `engagements/`:
+- If `--slug <team-slug>` was passed, use that slug directly: set `engagement_path` = `engagements/<slug>/`
+- If no slug was passed and exactly one folder exists under `engagements/` with a `config.json`, use that
+- If multiple folders exist and no slug was specified, ask: "Which engagement? (available: `<list of slugs>`)"
+
+**Step 3 — No engagement found**
+
+If neither Step 1 nor Step 2 yields a config, surface:
+> "No engagement found at `./config.json` or `engagements/<slug>/config.json`. Run `/cb-init` to create an engagement, or `/cb-init --root` to scaffold at this location."
 
 ## Three modes
 

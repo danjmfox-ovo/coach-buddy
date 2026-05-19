@@ -3,17 +3,17 @@ name: cb-init
 description: >-
   Scaffolds a new coaching engagement folder. Creates CONTEXT.md, COACHING_LOG.md,
   RETRO_ACTIONS.md, HISTORY.md, config.json, and a snapshots/ subdirectory under
-  engagements/<team-slug>/. Use when starting a new team engagement.
+  engagements/[team-slug]/. Use when starting a new team engagement.
 metadata:
   user-invocable: true
-  argument-hint: '[--force] — re-run on an existing slug without confirmation prompt'
+  argument-hint: '[--root] [--force] — --root scaffolds at current working directory; --force skips overwrite prompt'
 ---
 
 # cb-init — Engagement Scaffolding
 
 ## What this does
 
-Creates a complete engagement folder structure at `engagements/<team-slug>/`. Run once per engagement at the start of a new coaching relationship.
+Creates a complete engagement folder structure at `engagements/<team-slug>/`. Run once per engagement at the start of a new coaching relationship. With `--root`, files are scaffolded at the current working directory with no `engagements/` subdirectory.
 
 ## Setup flow
 
@@ -31,8 +31,15 @@ Ask the following questions in order. Do not ask all at once — one at a time, 
 
 ## Overwrite guard
 
-Before creating any files, check whether `engagements/<slug>/` already exists using the Read tool (attempt to read `engagements/<slug>/config.json`).
+If `--root` is active, check whether `./config.json` exists and contains the engagement schema (`version` + `engagement.slug`):
+- If it **does not exist**: proceed.
+- If it **does exist** and `--force` was NOT passed: ask "An engagement at this location already exists (config.json found). Overwrite it? (yes/no)". If no, stop. If yes, proceed.
+- If it **does exist** and `--force` was passed: proceed without asking.
 
+Additionally, if `--root` is active and `./config.json` is absent but `./COACHING_LOG.md` exists, warn before proceeding:
+> "COACHING_LOG.md already exists at this location. It will not be overwritten by the overwrite guard — only config.json is checked. Proceed? (yes/no)"
+
+If `--root` is NOT active, check whether `engagements/<slug>/config.json` exists:
 - If it **does not exist**: proceed.
 - If it **does exist** and the `--force` flag was NOT passed: ask "An engagement folder for `<slug>` already exists. Overwrite it? (yes/no)". If the coach says no, stop. If yes, proceed.
 - If it **does exist** and `--force` was passed: proceed without asking.
@@ -41,7 +48,11 @@ Before creating any files, check whether `engagements/<slug>/` already exists us
 
 Create all of the following. Use the exact content in the templates below, substituting `{team_name}`, `{slug}`, `{date}` (today's date as YYYY-MM-DD), and `{tool_type}` as appropriate.
 
-### `engagements/<slug>/config.json`
+When `--root` is active, `{target}` = `./` — create all files at `{target}CONTEXT.md`, `{target}COACHING_LOG.md`, etc.
+When `--root` is NOT active, `{target}` = `engagements/<slug>/` — behaviour unchanged.
+The file templates themselves are unchanged — only the path prefix changes.
+
+### `{target}config.json`
 
 ```json
 {
@@ -62,7 +73,7 @@ Create all of the following. Use the exact content in the templates below, subst
 
 For `tool_type = "none"`: set `project_key` and `board_id` to `""`.
 
-### `engagements/<slug>/CONTEXT.md`
+### `{target}CONTEXT.md`
 
 ```markdown
 # Team Context — {team_name}
@@ -105,7 +116,7 @@ For `tool_type = "none"`: set `project_key` and `board_id` to `""`.
 <!-- Current focus, near-term priorities, known pressures. -->
 ```
 
-### `engagements/<slug>/COACHING_LOG.md`
+### `{target}COACHING_LOG.md`
 
 ```markdown
 # Coaching Log — {team_name}
@@ -131,7 +142,7 @@ mode: thinking-partner
 <!-- Entries below this line -->
 ```
 
-### `engagements/<slug>/RETRO_ACTIONS.md`
+### `{target}RETRO_ACTIONS.md`
 
 ```markdown
 # Retro Actions — {team_name}
@@ -142,7 +153,7 @@ mode: thinking-partner
 |---|--------|-------|--------|--------|-------|
 ```
 
-### `engagements/<slug>/HISTORY.md`
+### `{target}HISTORY.md`
 
 ```markdown
 # Team History — {team_name}
@@ -158,18 +169,18 @@ mode: thinking-partner
 <!-- History entries below this line -->
 ```
 
-### `engagements/<slug>/snapshots/` (directory)
+### `{target}snapshots/` (directory)
 
 Create this directory by writing a placeholder file:
 
-`engagements/<slug>/snapshots/.gitkeep` — empty file. This makes the directory visible and signals that snapshots belong here.
+`{target}snapshots/.gitkeep` — empty file. This makes the directory visible and signals that snapshots belong here.
 
 ## Success output
 
 After all files are created, print:
 
 ```
-Engagement folder created: engagements/<slug>/
+Engagement folder created: {target}
 
   CONTEXT.md          — fill in what you know about the team
   COACHING_LOG.md     — use /cb-log to capture observations

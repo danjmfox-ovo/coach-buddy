@@ -6,7 +6,7 @@ description: >-
   Use after any team session, ceremony, or interaction worth tracking.
 metadata:
   user-invocable: true
-  argument-hint: '<observation> [--update <id> <field> <value>] [--mode <value>] [--slug <team-slug>]'
+  argument-hint: '[observation] [--update [id] [field] [value]] [--mode [value]] [--slug [team-slug]]'
 ---
 
 # cb-log — Coaching Log Capture
@@ -17,7 +17,24 @@ Prepends a new entry to `COACHING_LOG.md`, or updates a field on an existing ent
 
 ## Reading the engagement config
 
-Read `engagements/<slug>/config.json` to find the engagement path. If `--slug <team-slug>` is passed, use that slug. If not passed and only one engagement folder exists under `engagements/`, use that. If multiple exist and no slug is specified, ask: "Which engagement? (available: <list of slugs>)"
+**Step 1 — Check for root layout**
+
+Attempt to read `./config.json`. If the file exists and contains both a `version` field and an `engagement.slug` field, this is a root-layout engagement:
+- Set `engagement_path` = `./`
+- Set `slug` = value of `engagement.slug`
+- Skip Step 2 and proceed directly to the skill's main logic using `engagement_path`
+
+**Step 2 — Fall back to legacy layout**
+
+If `./config.json` is absent or does not contain the engagement schema, look for an engagement under `engagements/`:
+- If `--slug <team-slug>` was passed, use that slug directly: set `engagement_path` = `engagements/<slug>/`
+- If no slug was passed and exactly one folder exists under `engagements/` with a `config.json`, use that
+- If multiple folders exist and no slug was specified, ask: "Which engagement? (available: `<list of slugs>`)"
+
+**Step 3 — No engagement found**
+
+If neither Step 1 nor Step 2 yields a config, surface:
+> "No engagement found at `./config.json` or `engagements/<slug>/config.json`. Run `/cb-init` to create an engagement, or `/cb-init --root` to scaffold at this location."
 
 ## Two modes
 
