@@ -1,0 +1,111 @@
+{
+  "roadmap": {
+    "project_id": "calendar-magick-integration",
+    "created_at": "2026-05-19T00:00:00Z",
+    "total_steps": 3,
+    "phases": 1
+  },
+  "phases": [
+    {
+      "id": "01",
+      "name": "SKILL.md integration (US-01, US-02, US-03, US-04)",
+      "description": "Extend three existing SKILL.md skill files to integrate calendar-magick teams.yaml. No compiled code — implementation is prose architecture changes to cb-init, cb-snapshot, and cb-log.",
+      "estimated_hours": 3,
+      "deliverables": [
+        "skills/cb-init/SKILL.md",
+        "skills/cb-snapshot/SKILL.md",
+        "skills/cb-log/SKILL.md"
+      ],
+      "steps": [
+        {
+          "id": "01-01",
+          "name": "cb-init: Q6 teams.yaml link prompt and auto-detection",
+          "description": "Add Q6 optional prompt 'Link a calendar-magick teams.yaml?' as the final setup question. Before Q6, add auto-detection sub-step that scans teams/*/config.yaml (one level deep). Validate file existence when a path is entered. Add optional team_config block to config.json template. Add confirmation output 'Linked teams.yaml: <path>.'",
+          "criteria": "cb-init presents Q6 as last question; auto-detect pre-suggests when exactly one teams/*/config.yaml found; multiple matches show numbered list; no match falls through silently; entered path validated for existence; config.json written with team_config.path when confirmed; config.json written without team_config when skipped or file not found; confirmation message emitted",
+          "test_file": "tests/acceptance/calendar-magick-integration/slice-01-teams-yaml-link.feature",
+          "scenario_name": "Coach enters a valid path and config.json is written with team_config",
+          "quality_gates": [
+            "Q6 is the last question — no existing questions reordered or removed",
+            "Auto-detection is best-effort: directory read failure is silent",
+            "team_config block omitted entirely when no path confirmed (not null, not empty object)",
+            "Existing engagement regression: engagements without team_config show zero behaviour change"
+          ],
+          "implementation_notes": [
+            "Detection depth: teams/<name>/config.yaml only (one level). Do not recurse.",
+            "File-not-found response: 'File not found at <path>. You can add this later by editing config.json.'",
+            "team_config is a top-level peer key of tool, not nested under engagement."
+          ],
+          "dependencies": [],
+          "files_to_modify": [
+            "MODIFY skills/cb-init/SKILL.md"
+          ]
+        },
+        {
+          "id": "01-02",
+          "name": "cb-snapshot: Team Context Resolver and Sprint Position Calculator",
+          "description": "Embed Team Context Resolver sub-pattern after config read (3-step: check team_config.path, read teams.yaml subset, expose team_cadence/team_sprint_weeks/team_members). Embed Sprint Position Calculator (fixed epoch 2020-01-06, ISO week arithmetic, weekend-freeze). Extend snapshot header line with conditional sprint-context suffix. Extend risk read with sprint-context suffix when cadence=scrum.",
+          "criteria": "Team Context Resolver present verbatim; Sprint Position Calculator present verbatim with epoch 2020-01-06; header line gains '| Day D, Week W/N of Sprint (N-week scrum, started YYYY-MM-DD)' when cadence=scrum; no suffix when cadence=kanban or absent; risk read gains sprint-context suffix; graceful degradation when team_config absent or file unreadable",
+          "test_file": "tests/acceptance/calendar-magick-integration/slice-02-sprint-aware-snapshot.feature",
+          "scenario_name": "Snapshot header includes sprint day and week when cadence is scrum",
+          "quality_gates": [
+            "Sprint Position Calculator uses fixed epoch 2020-01-06 (not configurable, per ADR-013)",
+            "Weekend handling: Saturday/Sunday treated as preceding Friday",
+            "Graceful degradation: absent team_config or unreadable file — no sprint context, no error",
+            "Existing snapshot format unchanged when team_config absent"
+          ],
+          "implementation_notes": [
+            "Team Context Resolver contract verbatim from DESIGN driven-ports section.",
+            "Sprint Position Calculator algorithm verbatim from DESIGN driven-ports section.",
+            "sprint_context suffix format: '| Day {sprint_day}, Week {sprint_week}/{N} of Sprint ({N}-week scrum, started {sprint_start_label})'",
+            "Risk read suffix: append '| {sprint_context}' to sentence 1 when sprint_context is set."
+          ],
+          "dependencies": [],
+          "files_to_modify": [
+            "MODIFY skills/cb-snapshot/SKILL.md"
+          ]
+        },
+        {
+          "id": "01-03",
+          "name": "cb-log: Team Context Resolver and member hints with participants field",
+          "description": "Embed Team Context Resolver sub-pattern after config read. Add Step 1a: when team_members is non-empty, present member hint before 'Who was in the session?'. Enter = full team → participants field populated. Custom names accepted without validation. Add optional participants frontmatter field to COACHING_LOG.md entry format (OQ-04 resolution).",
+          "criteria": "Team Context Resolver present verbatim; member hint shows when team_members non-empty; hint format 'Team roster: <name (ROLE), ...> — enter names or press Enter for full team.'; Enter writes all member names to participants field; custom names accepted; participants field is optional frontmatter — omitted when no participants captured; existing entries without participants field remain valid; graceful degradation when team_config absent or file unreadable",
+          "test_file": "tests/acceptance/calendar-magick-integration/slice-03-member-hints.feature",
+          "scenario_name": "cb-log shows the team roster as a hint before asking who was in the session",
+          "quality_gates": [
+            "participants is an optional frontmatter field — never written when team context absent",
+            "Roster hint is informational only: coach can type any names, no validation",
+            "Existing COACHING_LOG.md entries without participants field are unaffected",
+            "OQ-04 resolution: participants as frontmatter field, not embedded in Context body"
+          ],
+          "implementation_notes": [
+            "Team Context Resolver contract verbatim from DESIGN driven-ports section (same as cb-snapshot step).",
+            "participants field format: 'participants: Dan Fox, Alice Chen, Priya Patel' (comma-separated, no roles)",
+            "participants line position: after mode: line in frontmatter block.",
+            "Full-team shortcut: Enter with no input → populate from team_members names only (not roles)."
+          ],
+          "dependencies": [],
+          "files_to_modify": [
+            "MODIFY skills/cb-log/SKILL.md"
+          ]
+        }
+      ]
+    }
+  ],
+  "implementation_scope": {
+    "source_directories": [
+      "skills/"
+    ],
+    "test_directories": [
+      "tests/acceptance/calendar-magick-integration/"
+    ],
+    "excluded_patterns": [
+      "*.DS_Store"
+    ]
+  },
+  "validation": {
+    "status": "approved",
+    "reviewer": "orchestrator",
+    "approved_at": "2026-05-19T00:00:00Z",
+    "note": "SKILL.md-only feature — prose architecture. Steps executed directly by orchestrator due to DES PYTHONPATH issue (nwave-ai pipx venv missing .pth for nWave/lib/python). Implementation verified against all 28 acceptance scenarios."
+  }
+}
