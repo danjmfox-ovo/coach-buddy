@@ -25,16 +25,25 @@ steps:
     label: "Coach initialises the engagement folder (once per engagement)"
     description: >
       Coach runs /cb-init, answers prompts about team name, slug, and project management
-      tool. engagement folder created with CONTEXT.md, COACHING_LOG.md,
-      RETRO_ACTIONS.md, HISTORY.md, and config.json.
+      tool. Optional final prompt: link a calendar-magick teams.yaml (auto-detected if a
+      teams/ directory is present). engagement folder created with CONTEXT.md, COACHING_LOG.md,
+      RETRO_ACTIONS.md, HISTORY.md, and config.json. If teams.yaml is linked,
+      config.json gains a team_config.path reference.
     actor: coach
     emotional_state: set-up and ready
     artifacts_produced:
+      # Legacy layout (default): files created under engagements/<team-slug>/
       - engagements/<team-slug>/CONTEXT.md
-      - engagements/<team-slug>/COACHING_LOG.md
-      - engagements/<team-slug>/RETRO_ACTIONS.md
+      - "{engagement_path}COACHING_LOG.md  # engagements/<team-slug>/ or ./ depending on layout"
+      - "{engagement_path}RETRO_ACTIONS.md  # engagements/<team-slug>/ or ./ depending on layout"
       - engagements/<team-slug>/HISTORY.md
       - engagements/<team-slug>/config.json
+      # Root layout (--root flag): files created at project root instead
+      # ./CONTEXT.md, ./COACHING_LOG.md, ./RETRO_ACTIONS.md, ./HISTORY.md, ./config.json
+      # Use --root when the CoWork project folder is dedicated to a single engagement.
+      # All downstream skills detect root layout automatically via config.json schema-match.
+    optional_artifacts:
+      - teams/<name>/config.yaml (linked via team_config.path — owned by calendar-magick, read-only for coach-buddy)
 
   - id: context-fill
     label: "Coach fills CONTEXT.md with team knowledge"
@@ -45,10 +54,10 @@ steps:
     actor: coach
     emotional_state: grounded — building the picture
     artifacts_updated:
-      - engagements/<team-slug>/CONTEXT.md
+      - "{engagement_path}CONTEXT.md  # engagements/<team-slug>/ or ./ depending on layout"
 
   - id: session-observation
-    label: "Coach runs /cb-log after a session"
+    label: "Coach runs /cb-log after a session (with optional member hints)"
     description: >
       After a team session (standup, retro, 1:1, board review), coach runs /cb-log
       with a description of what they noticed. Entry is prepended to COACHING_LOG.md
@@ -59,7 +68,7 @@ steps:
       - observation: Work-as-Done framing of what happened
       - hypothesis: If/Then format, testable
     artifacts_updated:
-      - engagements/<team-slug>/COACHING_LOG.md
+      - "{engagement_path}COACHING_LOG.md  # engagements/<team-slug>/ or ./ depending on layout"
 
   - id: retro-capture
     label: "Coach runs /cb-retro after a retrospective"
@@ -69,18 +78,24 @@ steps:
     actor: coach
     emotional_state: organised — tracking commitments
     artifacts_updated:
-      - engagements/<team-slug>/RETRO_ACTIONS.md
+      - "{engagement_path}RETRO_ACTIONS.md  # engagements/<team-slug>/ or ./ depending on layout"
 
   - id: pre-session-snapshot
     label: "Coach runs /cb-snapshot before a coaching conversation"
     description: >
       Before starting a /coach-buddy conversation, coach runs /cb-snapshot.
-      Snapshot file written to engagements/<team-slug>/snapshots/YYYY-MM-DD-board.md.
-      Two-sentence risk read printed in chat. Coach reviews before invoking /coach-buddy.
+      Snapshot file written to "{engagement_path}snapshots/YYYY-MM-DD-board.md  # engagements/<team-slug>/ or ./ depending on layout".
+      Two-sentence risk read printed in chat. When a teams.yaml is linked with
+      cadence: scrum, snapshot header includes sprint-day context (Day D, Week W/N).
+      Coach reviews before invoking /coach-buddy.
     actor: coach
     emotional_state: prepared — Work-as-Done picture in hand
     artifacts_produced:
-      - engagements/<team-slug>/snapshots/YYYY-MM-DD-board.md
+      - "{engagement_path}snapshots/YYYY-MM-DD-board.md  # engagements/<team-slug>/ or ./ depending on layout"
+    sprint_context_note: >
+      Sprint-day context (Day D, Week W/N of Sprint) is derived from teams.yaml
+      cadence + sprint_length_weeks when team_config.path is set in config.json.
+      Absent when teams.yaml is not linked or cadence is kanban.
 
   - id: grounded-coaching-conversation
     label: "Coach invokes /coach-buddy with engagement context visible"
@@ -102,6 +117,15 @@ steps:
       accumulate. Interventions can be compared. The coaching arc is visible.
     actor: coach
     emotional_state: systemic — seeing across sessions, not just within them
+
+calendar_magick_integration:
+  status: pending (calendar-magick-integration feature)
+  description: >
+    When team_config.path is set in config.json:
+    - engagement-start: auto-detects teams/ directory; pre-fills team config from teams.yaml
+    - session-observation: cb-log hints member names from team.members roster
+    - pre-session-snapshot: cb-snapshot extends header with sprint-day context (scrum cadence only)
+  opt_in: true (requires explicit teams.yaml link; existing engagements unchanged)
 
 emotional_arc:
   trajectory: upward
