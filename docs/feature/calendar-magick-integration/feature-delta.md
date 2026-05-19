@@ -449,3 +449,114 @@ This feature operates entirely within the SKILL.md prose architecture. There is 
 ---
 
 *Wave completed: 2026-05-19 | Next: DISTILL*
+
+---
+
+## Wave: DISTILL / [REF] Scenario List
+
+| # | Scenario | File | Tags |
+|---|----------|------|------|
+| 1 | Coach links a teams.yaml during cb-init and config.json records the path | walking-skeleton.feature | `@walking_skeleton @real-io @US-01` |
+| 2 | cb-snapshot renders sprint context in the snapshot header when teams.yaml has scrum cadence | walking-skeleton.feature | `@walking_skeleton @real-io @US-02` |
+| 3 | Coach enters a valid path and config.json is written with team_config | slice-01-teams-yaml-link.feature | `@real-io @US-01` |
+| 4 | Coach presses Enter to skip and config.json is written without team_config | slice-01-teams-yaml-link.feature | `@real-io @US-01` |
+| 5 | Coach enters a path to a file that does not exist — cb-init warns and skips the field | slice-01-teams-yaml-link.feature | `@real-io @US-01` |
+| 6 | teams.yaml link prompt is the last question in the setup flow | slice-01-teams-yaml-link.feature | `@real-io @US-01` |
+| 7 | Existing engagements without team_config continue to work after cb-init update | slice-01-teams-yaml-link.feature | `@real-io @US-01` |
+| 8 | Exactly one teams/*/config.yaml is found — cb-init pre-suggests it | slice-01-teams-yaml-link.feature | `@real-io @US-03` |
+| 9 | Multiple teams/*/config.yaml files found — cb-init presents a numbered list | slice-01-teams-yaml-link.feature | `@real-io @US-03` |
+| 10 | No teams/ directory found — cb-init falls through to manual entry unchanged | slice-01-teams-yaml-link.feature | `@real-io @US-03` |
+| 11 | teams/ directory exists but cannot be read — cb-init falls through silently | slice-01-teams-yaml-link.feature | `@real-io @US-03` |
+| 12 | Snapshot header includes sprint day and week when cadence is scrum | slice-02-sprint-aware-snapshot.feature | `@real-io @US-02` |
+| 13 | Risk read in chat includes sprint context when cadence is scrum | slice-02-sprint-aware-snapshot.feature | `@real-io @US-02` |
+| 14 | Sprint position algorithm uses fixed epoch — reproducible for any date | slice-02-sprint-aware-snapshot.feature | `@real-io @US-02` |
+| 15 | Weekend is treated as the preceding Friday for sprint position | slice-02-sprint-aware-snapshot.feature | `@real-io @US-02` |
+| 16 | No sprint context when teams.yaml has cadence: kanban | slice-02-sprint-aware-snapshot.feature | `@real-io @US-02` |
+| 17 | No sprint context when teams.yaml has no cadence field | slice-02-sprint-aware-snapshot.feature | `@real-io @US-02` |
+| 18 | No sprint context when config.json has no team_config field | slice-02-sprint-aware-snapshot.feature | `@real-io @US-02` |
+| 19 | No sprint context and no error when teams.yaml cannot be read | slice-02-sprint-aware-snapshot.feature | `@error @real-io @US-02` |
+| 20 | No sprint context and no error when teams.yaml has no team.cadence field | slice-02-sprint-aware-snapshot.feature | `@error @real-io @US-02` |
+| 21 | cb-log shows the team roster as a hint before asking who was in the session | slice-03-member-hints.feature | `@real-io @US-04` |
+| 22 | Coach presses Enter to select full team — participants field populated with all members | slice-03-member-hints.feature | `@real-io @US-04` |
+| 23 | Coach types custom names — participants field reflects exactly what was typed | slice-03-member-hints.feature | `@real-io @US-04` |
+| 24 | Coach types names not in the roster — cb-log accepts them without warning | slice-03-member-hints.feature | `@real-io @US-04` |
+| 25 | No member hint when config.json has no team_config field | slice-03-member-hints.feature | `@real-io @US-04` |
+| 26 | No member hint and no error when teams.yaml cannot be read | slice-03-member-hints.feature | `@error @real-io @US-04` |
+| 27 | participants field is omitted when team context is absent | slice-03-member-hints.feature | `@real-io @US-04` |
+| 28 | Existing COACHING_LOG.md entries without participants field remain valid | slice-03-member-hints.feature | `@real-io @US-04` |
+
+Total: 28 scenarios (2 walking skeleton, 7 error paths, 0 property-based)
+
+---
+
+## Wave: DISTILL / [REF] Walking Skeleton Strategy
+
+**Strategy C (real local)** — all resources are local filesystem SKILL.md files. No automated test runner. Manual conversation tests executed in Claude Code with a real CoWork project directory.
+
+**Justification**: The system under test is Claude executing SKILL.md prose instructions. There is no compiled code to instrument. Strategy C is the established pattern for this project (matches cb-root-layout feature). Strategy A (InMemory) and Strategy B (fake costly) are not applicable — there are no automated test adapters to substitute.
+
+**WS scope**: US-01 write path + US-02 read path. Together they prove: config.json schema extension (team_config written) → Team Context Resolver (YAML loaded) → Sprint Position Calculator (header rendered). All three integration points exercised before Slice 3 adds member hints.
+
+---
+
+## Wave: DISTILL / [REF] Adapter Coverage
+
+| Driven adapter | Type | Real-IO scenario |
+|----------------|------|-----------------|
+| config.json reader (existing) | Local filesystem | Scenarios 1, 3, 12, 18, 21, 25 |
+| teams.yaml reader (new — Team Context Resolver) | Local filesystem | Scenarios 1, 2, 3, 8, 12-17, 21-24 |
+| config.json writer (cb-init) | Local filesystem | Scenarios 1, 3, 4, 5 |
+| COACHING_LOG.md writer (cb-log) | Local filesystem | Scenarios 22, 23, 24, 27, 28 |
+| Snapshot file writer (cb-snapshot) | Local filesystem | Scenario 2, 12 |
+
+Every driven adapter has at least one `@real-io` scenario. Graceful-degradation paths (missing file, absent field) are covered by `@error @real-io` scenarios — the real filesystem is used, the file is simply absent.
+
+---
+
+## Wave: DISTILL / [REF] Scaffolds
+
+No `__SCAFFOLD__` RED stubs are needed. SKILL.md files already exist. The DELIVER wave crafter modifies existing files in-place. The acceptance tests verify content, not scaffolded stubs.
+
+Acceptance test files created (RED — not yet satisfied):
+
+| File | Scenarios | Status |
+|------|-----------|--------|
+| `tests/acceptance/calendar-magick-integration/walking-skeleton.feature` | 2 | RED |
+| `tests/acceptance/calendar-magick-integration/slice-01-teams-yaml-link.feature` | 9 | RED |
+| `tests/acceptance/calendar-magick-integration/slice-02-sprint-aware-snapshot.feature` | 9 | RED |
+| `tests/acceptance/calendar-magick-integration/slice-03-member-hints.feature` | 8 | RED |
+
+---
+
+## Wave: DISTILL / [REF] Test Placement
+
+`tests/acceptance/calendar-magick-integration/` — follows the established pattern from `tests/acceptance/cb-root-layout/` (the cb-root-layout feature's acceptance tests are co-located in their own directory under `tests/acceptance/`).
+
+---
+
+## Wave: DISTILL / [REF] Driving Adapter Coverage
+
+| Driving port (from DESIGN) | Covered by scenario |
+|---------------------------|---------------------|
+| `/cb-init` skill invocation | Scenarios 1, 3, 4, 5, 6, 7, 8, 9, 10, 11 |
+| `/cb-snapshot` skill invocation | Scenarios 2, 12, 13, 14, 15, 16, 17, 18, 19, 20 |
+| `/cb-log` skill invocation | Scenarios 21, 22, 23, 24, 25, 26 |
+
+All three driving ports from the DESIGN wave have at least one scenario each.
+
+---
+
+## Wave: DISTILL / [REF] Pre-requisites
+
+| Pre-requisite | Status |
+|---|---|
+| DESIGN driving ports: /cb-init, /cb-snapshot, /cb-log | Defined in DESIGN Driving Ports section |
+| DESIGN driven ports: Team Context Resolver, Sprint Position Calculator | Fully specified in DESIGN with prose contracts |
+| DESIGN decisions DD-01 to DD-05 | All locked; no open contradictions |
+| OQ-04 resolution: `participants:` as new optional frontmatter field | Resolved — analogous to existing optional `mode:` field; DELIVER crafter adds to COACHING_LOG.md entry format |
+| cb-root-layout feature | Delivered — cb-init --root, cb-snapshot root layout, slug disambiguation all complete |
+| calendar-magick teams.yaml schema subset | Locked at DISCUSS (team.name, team.cadence, team.sprint_length_weeks, team.timezone, team.members) |
+| Sprint epoch anchor ADR-013 | Written — 2020-01-06 fixed Monday |
+| Date fixture for scenario 14 | today=2026-05-19, sprint_length_weeks=2, epoch=2020-01-06 → sprint start=2026-05-18, Day 2, Week 1/2 |
+
+*Wave completed: 2026-05-19 | 28 scenarios across 4 files | WS Strategy C | Density: lean | Next: DELIVER*
