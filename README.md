@@ -84,7 +84,7 @@ cp -r . ~/.claude/skills/coach-buddy/
 3. Select the downloaded `coach-buddy.plugin`
 4. Click **Install**
 
-`/coach-buddy` and the engagement layer skills (`/cb-init`, `/cb-log`, `/cb-retro`, `/cb-snapshot`) will be available immediately in all your CoWork projects. No git clone or Node.js required.
+`/coach-buddy` and the engagement layer skills (`/cb-init`, `/cb-log`, `/cb-retro`, `/cb-snapshot`, `/cb-validate`) will be available immediately in all your CoWork projects. No git clone or Node.js required.
 
 > **Building from source**: if you have the repo cloned, run `npm run check:version && npm run build:plugin` to produce a fresh `coach-buddy.plugin` at the repo root.
 
@@ -148,6 +148,14 @@ cp -r skills/cb-validate .claude/skills/cb-validate
 
 Answer the prompts (team name, slug, project management tool). An `engagements/<team-slug>/` folder is created with `CONTEXT.md`, `COACHING_LOG.md`, `RETRO_ACTIONS.md`, `HISTORY.md`, and `snapshots/`.
 
+**Using a dedicated CoWork project directory?** If your CoWork project folder *is* the engagement (one directory = one team), use `--root` to skip the `engagements/` wrapper:
+
+```bash
+/cb-init --root
+```
+
+Files are created at the project root (`./CONTEXT.md`, `./COACHING_LOG.md`, etc.). All downstream skills detect the layout automatically — no flags needed after init.
+
 **Fill in** `CONTEXT.md` with what you know about the team. This is the only manual step — the other files are managed by the skills.
 
 ### Typical session flow
@@ -177,9 +185,9 @@ Answer the prompts (team name, slug, project management tool). An `engagements/<
 The engagement files are also readable as Claude Chat project knowledge — giving the same grounding in Chat conversations that can't run skills directly.
 
 Before a Chat session, upload:
-- `engagements/<team-slug>/CONTEXT.md` — static team knowledge
-- `engagements/<team-slug>/COACHING_LOG.md` (or a recent excerpt) — coaching arc
-- The latest `engagements/<team-slug>/snapshots/YYYY-MM-DD-board.md` — current board state
+- `CONTEXT.md` — static team knowledge (at `./` in root layout, `engagements/<team-slug>/` in legacy layout)
+- `COACHING_LOG.md` (or a recent excerpt) — coaching arc
+- The latest `snapshots/YYYY-MM-DD-board.md` — current board state
 
 The `/cb-snapshot` file is designed to be uploaded directly — it is structured and readable without editing.
 
