@@ -29,6 +29,19 @@ Ask the following questions in order. Do not ask all at once — one at a time, 
    - Other: ask for whatever identifier the coach needs to query the tool
 5. **WIP age threshold** — how many business days before an in-progress item is flagged as aged? Default: 5. Accept the default unless the coach specifies otherwise.
 
+**Q6 pre-step — Auto-detect teams.yaml (calendar-magick)**
+
+Before presenting Q6, scan for `teams/*/config.yaml` at the current directory (one level deep only — `teams/<name>/config.yaml`). Do not recurse further.
+
+- If exactly one match is found, present: `"Found teams/<name>/config.yaml. Link this as your teams.yaml? [Y/n]"`. If the coach answers Y or presses Enter, use that path directly as the answer to Q6 (skip the manual prompt). If the coach answers N, fall through to Q6 below.
+- If more than one match is found, present a numbered list: `"Found multiple team configs:"` followed by one line per match, plus an option to enter a custom path or skip. Let the coach select by number or type a path.
+- If no match is found, or if the `teams/` directory cannot be read (permissions, absent): proceed silently to Q6 below with no error message.
+
+6. **Link a calendar-magick teams.yaml** *(shown only when auto-detection did not already resolve a path)*: `"Link a calendar-magick teams.yaml? Enter a path relative to this directory, or press Enter to skip."`
+
+   - If the coach enters a path: validate that the file exists at the given path. If the file exists, record the path. If the file does **not** exist, respond: `"File not found at <path>. You can add this later by editing config.json."` and record no path (proceed to create files).
+   - If the coach presses Enter (skip): record no path.
+
 ## Overwrite guard
 
 If `--root` is active, check whether `./config.json` exists and contains the engagement schema (`version` + `engagement.slug`):
@@ -72,6 +85,21 @@ The file templates themselves are unchanged — only the path prefix changes.
 ```
 
 For `tool_type = "none"`: set `project_key` and `board_id` to `""`.
+
+If a teams.yaml path was confirmed in Q6 (either via auto-detection or manual entry), include a `team_config` block as a top-level peer key after `tool`:
+
+```json
+{
+  "version": 1,
+  "engagement": { ... },
+  "tool": { ... },
+  "team_config": {
+    "path": "{teams_yaml_path}"
+  }
+}
+```
+
+Omit the `team_config` block entirely when no path was confirmed (skip or file-not-found). Do not write `"team_config": {}` or `"team_config": null`.
 
 ### `{target}CONTEXT.md`
 
@@ -190,6 +218,18 @@ Engagement folder created: {target}
   config.json         — tool: {tool_type}
 
 Next: fill in CONTEXT.md, then use /coach-buddy when you're ready to think something through.
+```
+
+If a `team_config.path` was written, append one additional line immediately after the `config.json` line:
+
+```
+  team_config         — linked teams.yaml: {teams_yaml_path}
+```
+
+And print the following confirmation message separately after the block:
+
+```
+Linked teams.yaml: {teams_yaml_path}.
 ```
 
 ## Guardrails

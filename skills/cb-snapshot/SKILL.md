@@ -47,6 +47,75 @@ Lookback window for Progress section: `--days` flag if passed, otherwise 14.
 
 ---
 
+## Team Context Resolver
+
+After extracting the tool fields above, run this resolver to load optional calendar-magick team context.
+
+```
+TEAM CONTEXT RESOLVER
+─────────────────────
+Step 1 — Check for team_config reference
+  Read `team_config.path` from the engagement config.json already loaded.
+  If the field is absent: team context is not configured — skip Steps 2–3 entirely.
+  Set `teams_yaml_path` = resolve `team_config.path` relative to `engagement_path`.
+
+Step 2 — Read teams.yaml
+  Attempt to read the file at `teams_yaml_path`.
+  If the file cannot be read (not found, permission error, unreadable content):
+    Log nothing. Team context is unavailable — skip Step 3 entirely. Continue skill.
+  Parse only the following fields:
+    team.name, team.cadence, team.sprint_length_weeks, team.timezone, team.members
+
+Step 3 — Expose team context
+  Set `team_cadence`      = team.cadence (string; absent → null)
+  Set `team_sprint_weeks` = team.sprint_length_weeks (integer; absent → null)
+  Set `team_members`      = team.members array (absent or empty → empty array)
+  Any other fields in teams.yaml are ignored.
+```
+
+If the resolver completes without team context (Step 1 or Step 2 short-circuit), all three variables remain null/empty. The skill continues normally with no sprint context and no error.
+
+---
+
+## Sprint Position Calculator
+
+Run this only when `team_cadence = "scrum"` and `team_sprint_weeks` is a positive integer.
+
+```
+SPRINT POSITION CALCULATOR
+──────────────────────────
+Inputs: sprint_length_weeks (integer N, ≥ 1), today (YYYY-MM-DD)
+
+Step 1 — Find the most recent sprint-aligned Monday
+  a. Determine today's ISO week number (week_num) and year.
+  b. If today is Saturday or Sunday: use the preceding Friday as today for all steps below.
+     Sprint position does not advance on weekends.
+  c. Find the Monday of the current ISO week (call it week_monday).
+  d. Sprint cycle length in weeks = N.
+  e. Fixed epoch anchor: 2020-01-06 (Monday, ISO week 2020-W02).
+     Weeks elapsed since epoch = floor((week_monday − epoch_monday) / 7).
+     Sprint cycle index = weeks_elapsed mod N.
+     Sprint start Monday = week_monday − (sprint_cycle_index × 7 days).
+
+Step 2 — Calculate sprint day (weekdays only)
+  Count business days (Mon–Fri) from sprint_start_monday to today, inclusive.
+  sprint_day = count of Mon–Fri days (1-based).
+
+Step 3 — Calculate sprint week
+  sprint_week = ceil(sprint_day / 5).
+
+Step 4 — Output
+  sprint_start_label = sprint_start_monday formatted as YYYY-MM-DD
+  sprint_context = "Day {sprint_day}, Week {sprint_week}/{N} of Sprint
+                   ({N}-week scrum, started {sprint_start_label})"
+```
+
+If `team_sprint_weeks` is absent or zero: set `sprint_context` = null (no sprint context).
+
+---
+
+---
+
 ## Tool: Jira
 
 Follow this section when `tool.type = "jira"`.
@@ -110,7 +179,7 @@ Write the snapshot to `{engagement_path}snapshots/{YYYY-MM-DD}-board.md`:
 
 ```markdown
 # Board Snapshot — {engagement.name}
-Generated: {YYYY-MM-DD}
+Generated: {YYYY-MM-DD}{" | " + sprint_context if sprint_context else ""}
 Tool: {tool.type} | Project: {project_key}
 
 ## WIP (In Progress)
@@ -145,10 +214,13 @@ Tool: {tool.type} | Project: {project_key}
 
 After writing the file, print two sentences in the conversation:
 
-1. The most significant flow signal from the snapshot (WIP volume, age flags, throughput gap, or empty runway).
+1. The most significant flow signal from the snapshot (WIP volume, age flags, throughput gap, or empty runway). If `sprint_context` is set, append it as a suffix: `| {sprint_context}`.
 2. One question worth holding before the coaching conversation.
 
-Example:
+Example (with sprint context):
+> "9 items in WIP with 3 age-flagged, against 4 completions in the last 14 days — the team is accumulating faster than completing. | Day 2, Week 1/2 of Sprint (2-week scrum, started 2026-05-18). Worth asking what's blocking resolution rather than starting on root causes."
+
+Example (without sprint context — unchanged behaviour):
 > "9 items in WIP with 3 age-flagged, against 4 completions in the last 14 days — the team is accumulating faster than completing. Worth asking what's blocking resolution rather than starting on root causes."
 
 Keep it factual and concise. Do not diagnose the team.

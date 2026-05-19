@@ -36,6 +36,36 @@ If `./config.json` is absent or does not contain the engagement schema, look for
 If neither Step 1 nor Step 2 yields a config, surface:
 > "No engagement found at `./config.json` or `engagements/<slug>/config.json`. Run `/cb-init` to create an engagement, or `/cb-init --root` to scaffold at this location."
 
+## Team Context Resolver
+
+After resolving `engagement_path` (Steps 1–3 above), run this resolver to load optional calendar-magick team context.
+
+```
+TEAM CONTEXT RESOLVER
+─────────────────────
+Step 1 — Check for team_config reference
+  Read `team_config.path` from the engagement config.json already loaded.
+  If the field is absent: team context is not configured — skip Steps 2–3 entirely.
+  Set `teams_yaml_path` = resolve `team_config.path` relative to `engagement_path`.
+
+Step 2 — Read teams.yaml
+  Attempt to read the file at `teams_yaml_path`.
+  If the file cannot be read (not found, permission error, unreadable content):
+    Log nothing. Team context is unavailable — skip Step 3 entirely. Continue skill.
+  Parse only the following fields:
+    team.name, team.cadence, team.sprint_length_weeks, team.timezone, team.members
+
+Step 3 — Expose team context
+  Set `team_cadence`      = team.cadence (string; absent → null)
+  Set `team_sprint_weeks` = team.sprint_length_weeks (integer; absent → null)
+  Set `team_members`      = team.members array (absent or empty → empty array)
+  Any other fields in teams.yaml are ignored.
+```
+
+If the resolver completes without team context (Step 1 or Step 2 short-circuit), `team_members` remains an empty array. The skill continues normally with no member hint and no error.
+
+---
+
 ## Two modes
 
 ### Mode 1: New entry (default)
@@ -47,6 +77,16 @@ Invoked as: `/cb-log <observation text>` or just `/cb-log` (then ask for the obs
 Ask (or use what was provided):
 - What did you observe? (Work-as-Done — what actually happened, not what should have happened)
 - In what context? (ceremony or moment — e.g. "sprint review", "standup", "1:1 with tech lead", "reviewing the board")
+
+**Step 1a — Capture session participants (optional)**
+
+If `team_members` is non-empty (loaded by Team Context Resolver above):
+- Present the member hint as part of the "who was in the session?" question:
+  > "Who was in the session? Team roster: `<name (ROLE), name (ROLE), ...>` — enter names or press Enter for full team."
+- If the coach presses Enter without input: use all members from `team_members` as the participants list. Write the `participants` field as a comma-separated list of names.
+- If the coach types names: use exactly what the coach typed. Names are not validated against the roster — the hint is informational only.
+
+If `team_members` is empty (team context absent or unreadable): ask "Who was in the session?" without the roster hint. The `participants` field is omitted from the entry (current behaviour preserved).
 
 **Step 1b — Capture mode (optional)**
 
@@ -84,6 +124,7 @@ Entry format:
 id: {id}
 date: {YYYY-MM-DD}
 mode: {mode}
+participants: {comma-separated names — omit this line entirely when no participants were captured}
 
 **Observed**: {observed}
 **Context**: {context}
@@ -94,6 +135,8 @@ mode: {mode}
 
 ---
 ```
+
+The `participants:` line is optional. Write it only when participants were captured in Step 1a. When omitted, the entry remains valid — existing entries without `participants:` are unaffected.
 
 **Step 5 — Confirm**
 
