@@ -42,12 +42,21 @@ Before presenting Q6, scan for `teams/*/config.yaml` at the current directory (o
    - If the coach enters a path: validate that the file exists at the given path. If the file exists, record the path. If the file does **not** exist, respond: `"File not found at <path>. You can add this later by editing config.json."` and record no path (proceed to create files).
    - If the coach presses Enter (skip): record no path.
 
+## Flag parsing
+
+Before proceeding, parse the flags in order:
+- If `--root` is present, check whether the next token is a path (i.e. starts with `.`, `/`, or `~`). If so, respond:
+  > "`--root <path>` is not supported — `--root` always targets the current working directory. To scaffold at a specific path, use `cd <path> && /cb-init --root`."
+  Then stop.
+- `--root` without a path token: root layout active, `target` = `./`
+- `--force`: skip overwrite prompt when present
+
 ## Overwrite guard
 
 If `--root` is active, check whether `./config.json` exists and contains the engagement schema (`version` + `engagement.slug`):
 - If it **does not exist**: proceed.
 - If it **does exist** and `--force` was NOT passed: ask "An engagement at this location already exists (config.json found). Overwrite it? (yes/no)". If no, stop. If yes, proceed.
-- If it **does exist** and `--force` was passed: proceed without asking.
+- If it **does exist** and `--force` was passed: proceed without asking for overwrite confirmation. Still collect team name, slug, and all setup questions before creating files.
 
 Additionally, if `--root` is active and `./config.json` is absent but `./COACHING_LOG.md` exists, warn before proceeding:
 > "COACHING_LOG.md already exists at this location. It will not be overwritten by the overwrite guard — only config.json is checked. Proceed? (yes/no)"
@@ -55,7 +64,7 @@ Additionally, if `--root` is active and `./config.json` is absent but `./COACHIN
 If `--root` is NOT active, check whether `engagements/<slug>/config.json` exists:
 - If it **does not exist**: proceed.
 - If it **does exist** and the `--force` flag was NOT passed: ask "An engagement folder for `<slug>` already exists. Overwrite it? (yes/no)". If the coach says no, stop. If yes, proceed.
-- If it **does exist** and `--force` was passed: proceed without asking.
+- If it **does exist** and `--force` was passed: proceed without asking for overwrite confirmation. Still collect team name, slug, and all setup questions before creating files.
 
 ## Files to create
 

@@ -28,8 +28,8 @@ Attempt to read `./config.json`. If the file exists and contains both a `version
 
 If `./config.json` is absent or does not contain the engagement schema, look for an engagement under `engagements/`:
 - If `--slug <team-slug>` was passed, use that slug directly: set `engagement_path` = `engagements/<slug>/`
-- If no slug was passed and exactly one folder exists under `engagements/` with a `config.json`, use that
-- If multiple folders exist and no slug was specified, ask: "Which engagement? (available: `<list of slugs>`)"
+- If no slug was passed and exactly one folder exists under `engagements/` with a `config.json`, use that (folders without a `config.json` are not counted as candidates)
+- If multiple qualifying folders exist and no slug was specified, ask: "Which engagement? (available: `<list of slugs>`)"
 
 **Step 3 — No engagement found**
 
@@ -140,7 +140,7 @@ The `participants:` line is optional. Write it only when participants were captu
 
 **Step 5 — Confirm**
 
-Print: `Entry {id} added to {engagement_path}/COACHING_LOG.md`
+Print: `Entry {id} added to {engagement_path}COACHING_LOG.md`
 
 If any fields are `(to fill)`, add: `Run /cb-log --update {id} <field> <value> to refine.`
 
@@ -159,7 +159,7 @@ Steps:
 4. Write the updated file.
 5. Print: `Entry {id} updated — {field} revised.`
 
-If the entry ID is not found, print: `Entry {id} not found in {engagement_path}/COACHING_LOG.md. Check the ID with /cb-log --list.`
+If the entry ID is not found, print: `Entry {id} not found in {engagement_path}COACHING_LOG.md. Check the ID with /cb-log --list.`
 
 ---
 

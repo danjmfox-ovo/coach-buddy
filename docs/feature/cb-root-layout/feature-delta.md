@@ -537,3 +537,107 @@ medium_issues_resolved: 1
 Issue 1 (medium — WS full-cycle multiple When actions): Documented as accepted WS trade-off in TD-002 of distill wave-decisions.md. The scenario header in the feature file notes it is a WS full-cycle scenario intentionally compressing the action to express E2E value. Individual per-skill scenarios provide the focused breakdown.
 
 **Approval status: APPROVED**
+
+---
+
+## Wave: DELIVER / [REF] Implementation Summary
+
+Root-layout support shipped across all 6 engagement SKILL.md files. Slice 01 (`cb-init`) gained the `--root` flag — when active, all engagement files scaffold at `./` with no `engagements/` wrapper. Slice 02 introduced the Engagement Path Resolver pattern (verbatim per REF-D4) in `cb-log`, `cb-retro`, `cb-snapshot`, `cb-validate`, and `coach-buddy` — each skill now detects layout by checking `./config.json` for the engagement schema before falling back to the legacy `engagements/<slug>/` path. An adversarial review pass caught 5 issues (1 critical path bug, 4 under-specified edge cases) which were resolved before finalisation.
+
+---
+
+## Wave: DELIVER / [REF] Files Modified
+
+**Production (SKILL.md)**
+
+| File | Change |
+|---|---|
+| `skills/cb-init/SKILL.md` | New `## Flag parsing` section; `--root` flag; `{target}` path variable; conditional overwrite guard; COACHING_LOG.md collision warning; updated argument-hint and What this does |
+| `skills/cb-log/SKILL.md` | Engagement Path Resolver replaces hardcoded config read; path slash bug fixed in confirmation + not-found messages; qualifying-folder clarification in Step 2 |
+| `skills/cb-retro/SKILL.md` | Engagement Path Resolver replaces hardcoded config read; qualifying-folder clarification in Step 2 |
+| `skills/cb-snapshot/SKILL.md` | Engagement Path Resolver; `{engagement_path}` in output/confirmation/coaching-context; frontmatter description updated; qualifying-folder clarification in Step 2 |
+| `skills/cb-validate/SKILL.md` | Engagement Path Resolver; `{engagement_path}COACHING_LOG.md`; qualifying-folder clarification in Step 2 |
+| `skills/coach-buddy/SKILL.md` | New `## Engagement context (optional)` section; Engagement Path Resolver (silent, no error); multi-legacy non-determinism fixed (skip loading when multiple engagements exist) |
+
+**Tests**
+
+| File | Notes |
+|---|---|
+| `tests/acceptance/cb-root-layout/walking-skeleton.feature` | Authoritative spec — 21 scenarios, manual execution (WS strategy C) |
+| `tests/acceptance/cb-root-layout/test-script.md` | Manual test script — 18 numbered runs |
+
+**Deliver artefacts**
+
+| File | Notes |
+|---|---|
+| `docs/feature/cb-root-layout/deliver/roadmap.json` | 2 steps, 1 phase, approved |
+| `docs/feature/cb-root-layout/deliver/execution-log.json` | DES audit log — 2 steps COMMIT/PASS |
+
+---
+
+## Wave: DELIVER / [REF] Scenarios Green Count
+
+21 of 21 scenarios verified (manual review — WS strategy C, real-io).
+
+| Tag | Count | Status |
+|---|---|---|
+| `@walking_skeleton` | 3 | ✅ verified |
+| `@real-io` happy path | 9 | ✅ verified |
+| `@error @real-io` | 9 | ✅ verified |
+
+Review date: 2026-05-19. Full automated run requires real Claude Code session with installed skills.
+
+---
+
+## Wave: DELIVER / [REF] DoD Check
+
+From DISCUSS Definition of Done:
+
+| Item | Status |
+|---|---|
+| `cb-init --root` scaffolds at `./` | ✅ PASS |
+| All downstream skills detect root layout | ✅ PASS |
+| Legacy layout unchanged and backwards compatible | ✅ PASS |
+| Slug disambiguation bypassed in root layout | ✅ PASS |
+| Error message guides coach to `/cb-init` or `/cb-init --root` | ✅ PASS |
+| coach-buddy proceeds silently with no engagement | ✅ PASS |
+| `--root <path>` unsupported — workaround suggested | ✅ PASS (added in Phase 4 gap fix) |
+| Overwrite guard: config.json check + COACHING_LOG.md collision warning | ✅ PASS |
+
+---
+
+## Wave: DELIVER / [REF] Demo Evidence
+
+WS strategy C — demo commands are Claude Code skill invocations, not subprocess-executable CLI commands. Demo output captured via prose review against SKILL.md content.
+
+| Story | Demo command | Evidence |
+|---|---|---|
+| US-CBR-01 | `/cb-init --root` → team questions → `Engagement folder created: ./` | cb-init success output: `{target}` = `./` in root layout ✅ |
+| US-CBR-02 | `/cb-log "Tech lead not speaking in standups"` in root layout | Engagement Path Resolver Step 1 detects `./config.json` → no disambiguation → `Entry {id} added to ./COACHING_LOG.md` ✅ |
+| US-CBR-03 | Any downstream skill invocation | Slug read from root `config.json` → disambiguation bypassed ✅ |
+
+---
+
+## Wave: DELIVER / [REF] Quality Gates
+
+| Gate | Phase | Result |
+|---|---|---|
+| Roadmap quality gate (automated) | Phase 1 | PASS — 2/2 checks clean |
+| Per-step TDD (PREPARE→COMMIT) | Phase 2 | PASS — 2 steps |
+| Post-merge integration gate | Phase 3.5 | PASS — 21 scenarios verified, WS strategy C |
+| L1-L6 refactoring | Phase 3 | N/A — SKILL.md prose, standard L1 review applied |
+| Adversarial review | Phase 4 | PASS after 1 revision — 5 issues found and resolved |
+| Mutation testing | Phase 5 | SKIP — SKILL.md-only feature, no executable code |
+| DES integrity verification | Phase 6 | PASS — 2 steps with complete traces |
+
+---
+
+## Wave: DELIVER / [REF] Pre-requisites
+
+| Dependency | Source |
+|---|---|
+| Engagement Path Resolver spec (REF-D4) | DESIGN wave — `feature-delta.md` Wave: DESIGN / [REF-D4] |
+| SKILL.md change blueprint (REF-D5) | DESIGN wave — `feature-delta.md` Wave: DESIGN / [REF-D5] |
+| Acceptance scenarios | DISTILL wave — `tests/acceptance/cb-root-layout/walking-skeleton.feature` |
+| ADR-008 (self-containment) | `docs/product/architecture/adr-008-portable-install-two-layer-model.md` |
+| ADR-012 (root layout) | `docs/product/architecture/adr-012-root-layout-cowork-placement.md` |

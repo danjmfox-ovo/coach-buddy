@@ -1,9 +1,10 @@
 ---
 name: cb-snapshot
 description: >-
-  Writes a dated board snapshot to engagements/[team-slug]/snapshots/YYYY-MM-DD-board.md.
-  Four sections: WIP, Progress (last 14 days), Runway, Waiting. Age-flags WIP items beyond
-  threshold. Prints a two-sentence risk read in chat. Use before coaching conversations.
+  Writes a dated board snapshot to the engagement's snapshots/ directory (root layout: ./snapshots/;
+  legacy layout: engagements/[team-slug]/snapshots/). Four sections: WIP, Progress (last 14 days),
+  Runway, Waiting. Age-flags WIP items beyond threshold. Prints a two-sentence risk read in chat.
+  Use before coaching conversations.
 metadata:
   user-invocable: true
   argument-hint: '[--slug [team-slug]] [--days [lookback-days]]'
@@ -28,8 +29,8 @@ Attempt to read `./config.json`. If the file exists and contains both a `version
 
 If `./config.json` is absent or does not contain the engagement schema, look for an engagement under `engagements/`:
 - If `--slug <team-slug>` was passed, use that slug directly: set `engagement_path` = `engagements/<slug>/`
-- If no slug was passed and exactly one folder exists under `engagements/` with a `config.json`, use that
-- If multiple folders exist and no slug was specified, ask: "Which engagement? (available: `<list of slugs>`)"
+- If no slug was passed and exactly one folder exists under `engagements/` with a `config.json`, use that (folders without a `config.json` are not counted as candidates)
+- If multiple qualifying folders exist and no slug was specified, ask: "Which engagement? (available: `<list of slugs>`)"
 
 **Step 3 — No engagement found**
 

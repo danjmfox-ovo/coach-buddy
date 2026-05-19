@@ -49,7 +49,7 @@ Attempt to read `./config.json`. If the file exists and contains both a `version
 
 If `./config.json` is absent or does not contain the engagement schema, look for an engagement under `engagements/`:
 - If exactly one folder exists under `engagements/` with a `config.json`, use that
-- If multiple folders exist, use whichever matches the current project context, or skip engagement loading
+- If multiple folders exist with a `config.json`: skip engagement loading — do not guess; proceed without context
 
 **Step 3 — No engagement found**
 
