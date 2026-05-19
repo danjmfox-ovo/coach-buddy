@@ -16,13 +16,26 @@ Queries the team's project management tool (or accepts a manual paste), structur
 
 ## Reading the engagement config
 
-Read `engagements/<slug>/config.json`.
+**Step 1 — Check for root layout**
 
-- If `--slug <team-slug>` is passed, use that slug.
-- If not passed and only one engagement folder exists, use it.
-- If multiple exist and no slug is specified, ask which engagement.
+Attempt to read `./config.json`. If the file exists and contains both a `version` field and an `engagement.slug` field, this is a root-layout engagement:
+- Set `engagement_path` = `./`
+- Set `slug` = value of `engagement.slug`
+- Skip Step 2 and proceed directly to the skill's main logic using `engagement_path`
 
-Extract from config:
+**Step 2 — Fall back to legacy layout**
+
+If `./config.json` is absent or does not contain the engagement schema, look for an engagement under `engagements/`:
+- If `--slug <team-slug>` was passed, use that slug directly: set `engagement_path` = `engagements/<slug>/`
+- If no slug was passed and exactly one folder exists under `engagements/` with a `config.json`, use that
+- If multiple folders exist and no slug was specified, ask: "Which engagement? (available: `<list of slugs>`)"
+
+**Step 3 — No engagement found**
+
+If neither Step 1 nor Step 2 yields a config, surface:
+> "No engagement found at `./config.json` or `engagements/<slug>/config.json`. Run `/cb-init` to create an engagement, or `/cb-init --root` to scaffold at this location."
+
+Extract from `{engagement_path}config.json`:
 - `tool.type` — determines which section below to follow
 - `tool.project_key` — used in queries
 - `tool.board_id` — used in queries (Jira)
@@ -92,7 +105,7 @@ Accept freeform paste. Structure it into the four sections using the coach's own
 
 ## Output format
 
-Write the snapshot to `engagements/<slug>/snapshots/{YYYY-MM-DD}-board.md`:
+Write the snapshot to `{engagement_path}snapshots/{YYYY-MM-DD}-board.md`:
 
 ```markdown
 # Board Snapshot — {engagement.name}
@@ -146,7 +159,7 @@ Keep it factual and concise. Do not diagnose the team.
 After writing the file, print:
 
 ```
-Snapshot written: engagements/<slug>/snapshots/{YYYY-MM-DD}-board.md
+Snapshot written: {engagement_path}snapshots/{YYYY-MM-DD}-board.md
   WIP: {N} items ({M} age-flagged)
   Progress (14d): {N} items
   Runway: {N} items
@@ -162,7 +175,7 @@ Then the two-sentence risk read.
 After writing the snapshot file and printing the risk read, append a coaching context
 section if `COACHING_LOG.md` exists for the engagement.
 
-**Check**: attempt to read `engagements/<slug>/COACHING_LOG.md`.
+**Check**: attempt to read `{engagement_path}COACHING_LOG.md`.
 
 - If the file does not exist or is empty (header only, no entries): skip this section entirely. No error.
 - If the file exists with entries: select up to 3 entries, most-recent-first by `date:` field.

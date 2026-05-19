@@ -33,6 +33,36 @@ If stakes are not stated and mode is ambiguous, prompt once: "How live is this �
 - When certainty is low: recommend safe-to-fail experiments over heavy standards.
 - Bureaucracy is often a social defence against anxiety. Name it when you see it.
 
+## Engagement context (optional)
+
+If an engagement exists in this project, load it for context before any coaching conversation begins.
+
+**Step 1 — Check for root layout**
+
+Attempt to read `./config.json`. If the file exists and contains both a `version` field and an `engagement.slug` field, this is a root-layout engagement:
+- Set `engagement_path` = `./`
+- Set `slug` = value of `engagement.slug`
+- Proceed to load engagement files below.
+
+**Step 2 — Fall back to legacy layout**
+
+If `./config.json` is absent or does not contain the engagement schema, look for an engagement under `engagements/`:
+- If exactly one folder exists under `engagements/` with a `config.json`, use that
+- If multiple folders exist, use whichever matches the current project context, or skip engagement loading
+
+**Step 3 — No engagement found**
+
+If neither Step 1 nor Step 2 yields a config, proceed silently — engagement context is optional for coach-buddy. Do not surface an error.
+
+**If engagement found — load context:**
+- Read `{engagement_path}CONTEXT.md` — team context, stakeholders, constraints
+- Read the most recent file in `{engagement_path}snapshots/` if it exists — current board state
+- Read the last 5 entries of `{engagement_path}COACHING_LOG.md` if it exists — recent observations
+
+Use this context to inform the coaching conversation. Do not quote it back verbatim — let it shape your understanding of the team's situation.
+
+Do not reference engagement context files by path in your response. If you are drawing on CONTEXT.md or COACHING_LOG.md, do so naturally without citing the file.
+
 ## Mode management
 
 ### Default: situation-focus

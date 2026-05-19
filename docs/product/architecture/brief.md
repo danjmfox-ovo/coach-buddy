@@ -116,6 +116,8 @@ C4Container
 | [ADR-008](adr-008-portable-install-two-layer-model.md) | Portable install — two-layer model and minimal install behaviour | Accepted |
 | [ADR-009](adr-009-npx-distribution.md) | npx distribution as Wilderness Exception | Accepted |
 | [ADR-010](adr-010-engagement-context-layer.md) | Engagement context layer — third deployment pattern | Accepted |
+| [ADR-011](adr-011-cb-validate-inplace-validation.md) | cb-validate in-place validation strategy | Accepted |
+| [ADR-012](adr-012-root-layout-cowork-placement.md) | Root layout — CoWork project placement via `--root` flag | Accepted |
 
 ---
 
@@ -310,3 +312,99 @@ mode: thinking-partner          ← written by cb-log (new, optional)
 | ADR | Title | Status |
 |-----|-------|--------|
 | [ADR-011](adr-011-cb-validate-inplace-validation.md) | cb-validate in-place validation strategy | Accepted |
+
+---
+
+## Application Architecture — cb-root-layout
+
+**Wave**: DESIGN (2026-05-19)
+**Feature**: cb-root-layout
+**Pattern**: Cutler-pattern extension (ADR-010, ADR-012); additive path-resolution layer
+
+### Summary
+
+Adds root-layout support to all six engagement skills. The change surface is SKILL.md prose only — no new files, no new deployment units, no domain model changes.
+
+Two-part delivery:
+- **Slice 01**: `cb-init` gains `--root` flag; engagement files scaffold at cwd with no `engagements/` wrapper
+- **Slice 02**: all five downstream skills (`cb-log`, `cb-retro`, `cb-snapshot`, `cb-validate`, `coach-buddy`) gain the Engagement Path Resolver pattern for layout-transparent file access
+
+### Layout Variants
+
+| Layout | Triggered by | Detection anchor | Engagement file root |
+|---|---|---|---|
+| Root layout | `cb-init --root` | `./config.json` (schema: `version` + `engagement.slug`) | `./` (cwd) |
+| Legacy layout | `cb-init` (no flag) | `engagements/<slug>/config.json` | `engagements/<slug>/` |
+
+Both layouts coexist transparently. Legacy layout is unchanged.
+
+### Shared Detection Pattern: Engagement Path Resolver
+
+The detection logic is identical across all five downstream skills. Each SKILL.md embeds the following named pattern verbatim under `## Reading the engagement config`:
+
+1. Attempt to read `./config.json`. If it exists and contains `version` and `engagement.slug`, this is root layout — set `engagement_path = ./`, skip Step 2.
+2. Otherwise, use existing `engagements/<slug>/config.json` discovery (slug from `--slug` flag, single-folder auto-select, or disambiguation prompt).
+3. If neither yields a config, surface: "No engagement found at `./config.json` or `engagements/<slug>/config.json`. Run `/cb-init` or `/cb-init --root`."
+
+The pattern is embedded verbatim (not extracted to a shared reference file) because SKILL.md self-containment is a design invariant from ADR-008 — skills must not depend on external reference files being present.
+
+### Component Changes
+
+| Component | Change | Key detail |
+|---|---|---|
+| `cb-init` | EXTEND | `--root` flag; conditional overwrite guard path; conditional file target paths; collision warning for `COACHING_LOG.md` |
+| `cb-log` | EXTEND | Engagement Path Resolver replaces hardcoded `engagements/<slug>/` read |
+| `cb-retro` | EXTEND | Engagement Path Resolver replaces hardcoded `engagements/<slug>/` read |
+| `cb-snapshot` | EXTEND | Engagement Path Resolver replaces hardcoded `engagements/<slug>/` read; snapshot and coaching-context paths use `{engagement_path}` variable |
+| `cb-validate` | EXTEND | Engagement Path Resolver replaces hardcoded `engagements/<slug>/` read |
+| `coach-buddy` | EXTEND | New `## Engagement context (optional)` section (after `## Core stance`, before `## Mode management`); Engagement Path Resolver applied silently; no error if no engagement found |
+
+### Engagement Data Layout (both variants)
+
+```
+Root layout (cb-init --root):          Legacy layout (cb-init):
+  ./config.json                          engagements/<slug>/config.json
+  ./CONTEXT.md                           engagements/<slug>/CONTEXT.md
+  ./COACHING_LOG.md                      engagements/<slug>/COACHING_LOG.md
+  ./RETRO_ACTIONS.md                     engagements/<slug>/RETRO_ACTIONS.md
+  ./HISTORY.md                           engagements/<slug>/HISTORY.md
+  ./snapshots/                           engagements/<slug>/snapshots/
+```
+
+### ADR Index Update
+
+| ADR | Title | Status |
+|-----|-------|--------|
+| [ADR-012](adr-012-root-layout-cowork-placement.md) | Root layout — CoWork project placement via `--root` flag | Accepted |
+
+### C4: System Context — cb-root-layout
+
+```mermaid
+C4Context
+    title cb-root-layout — System Context
+
+    Person(coach, "Agile Coach", "Uses dedicated CoWork project directory as engagement root")
+
+    System_Boundary(coachbuddy, "Coach Buddy Skill Layer (.claude/skills/)") {
+        System(cbinit, "cb-init", "Scaffolds engagement files. With --root: writes to cwd. Without --root: writes to engagements/<slug>/.")
+        System(downstream, "cb-log / cb-retro / cb-snapshot / cb-validate / coach-buddy", "Engagement skills. Detect layout via Engagement Path Resolver before any file operation.")
+    }
+
+    System_Boundary(filesystem, "Project Filesystem") {
+        System(rootconfig, "config.json (root)", "Engagement schema at cwd. Primary detection anchor in root layout.")
+        System(rootfiles, "Engagement files (root)", "COACHING_LOG.md, CONTEXT.md, RETRO_ACTIONS.md, HISTORY.md, snapshots/ at cwd.")
+        System(legacyconfig, "engagements/<slug>/config.json", "Engagement schema at slug path. Used in legacy layout.")
+        System(legacyfiles, "Engagement files (legacy)", "COACHING_LOG.md etc. under engagements/<slug>/. Unchanged.")
+    }
+
+    Rel(coach, cbinit, "Invokes /cb-init [--root] [--force]")
+    Rel(coach, downstream, "Invokes /cb-log, /cb-retro, /cb-snapshot, /cb-validate, /coach-buddy")
+    Rel(cbinit, rootconfig, "Creates in root layout")
+    Rel(cbinit, rootfiles, "Creates in root layout")
+    Rel(cbinit, legacyconfig, "Creates in legacy layout")
+    Rel(cbinit, legacyfiles, "Creates in legacy layout")
+    Rel(downstream, rootconfig, "Reads first — schema check determines layout")
+    Rel(downstream, rootfiles, "Reads and writes in root layout")
+    Rel(downstream, legacyconfig, "Reads as fallback in legacy layout")
+    Rel(downstream, legacyfiles, "Reads and writes in legacy layout")
+```

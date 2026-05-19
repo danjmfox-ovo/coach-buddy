@@ -215,6 +215,31 @@ jobs:
     validated: false
     note: "Emerged from AI reviewer analysis of coach-buddy engagement layer (2026-05-14). Identified as the most critical gap: 'captures perfectly but validates nothing.'"
 
+  - id: cowork-native-setup
+    title: "Initialise a coaching engagement in a project directory that IS the engagement"
+    job_story: >
+      When I am starting a new coaching engagement in a dedicated project directory
+      (a directory whose sole purpose is that engagement),
+      I want to scaffold engagement files directly at the project root — not inside
+      an engagements/<slug>/ subdirectory — so I can work with engagement artefacts
+      where they naturally live, without a redundant wrapper folder.
+    dimensions:
+      functional: "cb-init --root places all engagement files at project root; downstream skills resolve paths from root; no slug disambiguation prompt needed"
+      emotional: "Feel immediately at home — files are where I expect them, not buried; no ceremony overhead for a single-engagement project"
+      social: "CoWork project that looks like a CoWork project: clean root, engagement files at top level, no structural artefact of a legacy multi-engagement model"
+    four_forces:
+      push: "engagements/<slug>/ subdirectory is a redundant wrapper when the whole project is one engagement; path verbosity in every file reference; feels like the tool doesn't know where I am"
+      pull: "Engagement files at root — same level as CLAUDE.md and .claude/ — matching the real mental model of a dedicated coaching project"
+      anxiety: "Root-level file names (COACHING_LOG.md, CONTEXT.md) might collide with files already in the project; overwrite guard must be explicit"
+      habit: "Manually moves files from engagements/<slug>/ to root after init, or tolerates the subdirectory"
+    opportunity:
+      importance: medium-high
+      current_satisfaction: low
+      score: 7.5
+      rationale: "Specific to the CoWork-pattern deployment. Pain is real (confirmed by manual migration of advisor-connect). Low current satisfaction because no supported path exists — coach must hand-migrate or tolerate the wrapper."
+    validated: true
+    note: "Grounded in ADR-012 (2026-05-19). Real-world confirmation: ~/teams/advisor-connect manually migrated to root layout. Primary job anchor for cb-root-layout feature."
+
 tension_note: >
   J1 vs J2: The two coaching experience jobs want different orientations.
   J1 (thinking-partner) wants the tool to follow — serve the situation, not introduce new material.
