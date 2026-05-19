@@ -159,7 +159,7 @@ function runCli() {
 
   const sources = {
     packageJson: readFile(resolve(rootDir, 'package.json')),
-    pluginJson: readFile(resolve(rootDir, 'plugins/coach-buddy/.claude-plugin/plugin.json')),
+    pluginJson: readFile(resolve(rootDir, 'plugin/plugin.json')),
     skillMd: existsSync(resolve(rootDir, 'skills/coach-buddy/SKILL.md'))
       ? readFile(resolve(rootDir, 'skills/coach-buddy/SKILL.md'))
       : '---\n---\n',

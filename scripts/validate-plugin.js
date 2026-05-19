@@ -15,8 +15,9 @@
  */
 
 import { readFileSync, readdirSync, existsSync } from 'fs'
-import { resolve, dirname } from 'path'
+import { resolve, join, dirname } from 'path'
 import { fileURLToPath } from 'url'
+import { tmpdir } from 'os'
 
 // ---------------------------------------------------------------------------
 // Pure domain logic
@@ -108,15 +109,15 @@ export function validatePlugin({ pluginJson, skillMds }) {
 
 function runCli() {
   const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-  const pluginDir = resolve(rootDir, 'plugins/coach-buddy')
+  const buildDir = process.env.PLUGIN_BUILD_DIR ?? join(tmpdir(), 'coach-buddy-plugin-build')
 
-  const pluginJsonPath = resolve(pluginDir, '.claude-plugin/plugin.json')
+  const pluginJsonPath = resolve(rootDir, 'plugin/plugin.json')
   const pluginJson = readFileSync(pluginJsonPath, 'utf8')
 
-  const skillsDir = resolve(pluginDir, 'skills')
+  const skillsDir = join(buildDir, 'skills')
   const skillMds = {}
   for (const dir of readdirSync(skillsDir)) {
-    const skillPath = resolve(skillsDir, dir, 'SKILL.md')
+    const skillPath = join(skillsDir, dir, 'SKILL.md')
     if (existsSync(skillPath)) {
       skillMds[`skills/${dir}/SKILL.md`] = readFileSync(skillPath, 'utf8')
     }

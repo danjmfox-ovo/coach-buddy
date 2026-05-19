@@ -21,8 +21,8 @@
   "scripts": {
     "test": "vitest run",
     "check:version": "node scripts/check-version.js",
-    "build:plugin": "node scripts/validate-plugin.js && rm -f \"$TMPDIR/coach-buddy.plugin\" && cd plugins/coach-buddy && zip -r \"$TMPDIR/coach-buddy.plugin\" . -x '*.DS_Store' && cp \"$TMPDIR/coach-buddy.plugin\" ../../coach-buddy.plugin && cd ../.. && echo '✅ coach-buddy.plugin ready'",
-    "build:plugin:ci": "node scripts/validate-plugin.js && rm -f /tmp/coach-buddy.plugin && cd plugins/coach-buddy && zip -r /tmp/coach-buddy.plugin . -x '*.DS_Store' && cp /tmp/coach-buddy.plugin ../../coach-buddy.plugin && cd ../.. && echo '✅ coach-buddy.plugin ready'"
+    "build:plugin": "PLUGIN_BUILD_DIR=$TMPDIR/coach-buddy-plugin-build node scripts/sync-skills.js && mkdir -p $TMPDIR/coach-buddy-plugin-build/.claude-plugin && cp plugin/plugin.json $TMPDIR/coach-buddy-plugin-build/.claude-plugin/plugin.json && PLUGIN_BUILD_DIR=$TMPDIR/coach-buddy-plugin-build node scripts/validate-plugin.js && rm -f $TMPDIR/coach-buddy.plugin && (cd $TMPDIR/coach-buddy-plugin-build && zip -r $TMPDIR/coach-buddy.plugin . -x '*.DS_Store') && cp $TMPDIR/coach-buddy.plugin coach-buddy.plugin && echo 'coach-buddy.plugin ready'",
+    "build:plugin:ci": "PLUGIN_BUILD_DIR=/tmp/coach-buddy-plugin-build node scripts/sync-skills.js && mkdir -p /tmp/coach-buddy-plugin-build/.claude-plugin && cp plugin/plugin.json /tmp/coach-buddy-plugin-build/.claude-plugin/plugin.json && PLUGIN_BUILD_DIR=/tmp/coach-buddy-plugin-build node scripts/validate-plugin.js && rm -f /tmp/coach-buddy.plugin && (cd /tmp/coach-buddy-plugin-build && zip -r /tmp/coach-buddy.plugin . -x '*.DS_Store') && cp /tmp/coach-buddy.plugin coach-buddy.plugin && echo 'coach-buddy.plugin ready'"
   },
   "devDependencies": {
     "vitest": "^3.0.0"
