@@ -408,3 +408,97 @@ C4Context
     Rel(downstream, legacyconfig, "Reads as fallback in legacy layout")
     Rel(downstream, legacyfiles, "Reads and writes in legacy layout")
 ```
+
+---
+
+## Application Architecture — calendar-magick-integration
+
+**Wave**: DESIGN (2026-05-19)
+**Feature**: calendar-magick-integration
+**Pattern**: Cutler-pattern extension (ADR-010, ADR-013); read-only external file integration via inline Team Context Resolver sub-pattern
+
+### Summary
+
+Extends three existing skills (`cb-init`, `cb-snapshot`, `cb-log`) to optionally read a `teams.yaml` file maintained by the companion tool calendar-magick. coach-buddy is read-only. calendar-magick owns the write path. The integration is opt-in: engagements without `team_config.path` in their config.json see zero behaviour change.
+
+The change surface is SKILL.md prose only. No new SKILL.md files are created.
+
+### config.json Schema Extension
+
+```json
+{
+  "version": 1,
+  "engagement": { "name": "...", "slug": "...", "created": "..." },
+  "tool": { "type": "...", "project_key": "...", "board_id": "...", "wip_age_threshold_days": 5 },
+  "team_config": {
+    "path": "../../calendar-magick/teams/phoenix/config.yaml"
+  }
+}
+```
+
+`team_config` is an optional top-level peer key alongside `tool` and `engagement`. When absent, all downstream skill behaviour is unchanged. `path` is relative to the engagement root (the directory containing `config.json`), following D4.
+
+### New Sub-Pattern: Team Context Resolver
+
+A named prose sub-pattern embedded verbatim in cb-snapshot and cb-log (per ADR-008 self-containment invariant). Executes after the Engagement Path Resolver completes and config.json is loaded.
+
+The pattern exposes three values to the calling skill:
+- `team_cadence` — string (`"scrum"` / `"kanban"` / null)
+- `team_sprint_weeks` — integer / null
+- `team_members` — array of `{name, role}` / empty array
+
+Silent degradation: if `team_config` is absent from config, if the file cannot be read, or if any field is missing — the resolver sets the relevant value to null/empty and continues. No error is surfaced.
+
+### Sprint Position Calculator
+
+A deterministic prose algorithm embedded in cb-snapshot. Derives sprint day and week from `team_sprint_weeks` + today's date. No stored sprint start date.
+
+Epoch anchor: 2020-01-06 (Monday). Sprint cycle index = `floor((today_week_monday − epoch) / 7) mod N`. Weekend handling: Saturday/Sunday freeze at Friday's position. See ADR-013 for rationale.
+
+### Component Changes
+
+| Component | Change | Key detail |
+|-----------|--------|------------|
+| `cb-init` | EXTEND | Q6 added after Q5 (WIP threshold): detect `teams/*/config.yaml` → suggest path; or prompt for manual entry; validate file exists; write `team_config` to config.json |
+| `cb-snapshot` | EXTEND | Team Context Resolver after config read; Sprint Position Calculator when cadence=scrum; header line gains sprint suffix; risk read gains sprint suffix |
+| `cb-log` | EXTEND | Team Context Resolver after config read; member hint displayed before "Who was in the session?" when team_members is non-empty |
+| `config.json` | EXTEND | New optional top-level `team_config: {path}` key |
+
+### ADR Index Update
+
+| ADR | Title | Status |
+|-----|-------|--------|
+| [ADR-013](adr-013-sprint-position-epoch-anchor.md) | Sprint position epoch anchor — deterministic cadence derivation without stored state | Accepted |
+
+### C4: Container — calendar-magick-integration
+
+```mermaid
+C4Container
+    title Coach Buddy — calendar-magick integration
+
+    Person(coach, "Agile Coach", "Uses both coach-buddy and calendar-magick from the same CoWork project")
+
+    Container_Boundary(claudecode, "Claude Code / CoWork") {
+        Container(cbinit, "cb-init", "Skill (SKILL.md)", "Scaffold engagement; Q6 prompts for teams.yaml path; writes team_config.path to config.json")
+        Container(cbsnapshot, "cb-snapshot", "Skill (SKILL.md)", "Team Context Resolver → Sprint Position Calculator → sprint-context header and risk-read suffix")
+        Container(cblog, "cb-log", "Skill (SKILL.md)", "Team Context Resolver → member hint before participant prompt")
+    }
+
+    Container_Boundary(engagementstore, "Engagement Folder") {
+        ContainerDb(configjson, "config.json", "JSON", "Engagement config — extended with optional team_config.path")
+    }
+
+    Container_Boundary(calmagick, "calendar-magick") {
+        ContainerDb(teamsyaml, "teams.yaml", "YAML", "Team topology: members, cadence, sprint_length_weeks. Owned by calendar-magick — coach-buddy reads only.")
+    }
+
+    Rel(coach, cbinit, "Runs /cb-init", "Once per engagement")
+    Rel(coach, cbsnapshot, "Runs /cb-snapshot", "Before coaching conversations")
+    Rel(coach, cblog, "Runs /cb-log", "After sessions")
+
+    Rel(cbinit, configjson, "Writes team_config.path when path confirmed", "")
+    Rel(cbsnapshot, configjson, "Reads team_config.path via Engagement Path Resolver", "")
+    Rel(cblog, configjson, "Reads team_config.path via Engagement Path Resolver", "")
+    Rel(cbsnapshot, teamsyaml, "Reads cadence + sprint_length_weeks via Team Context Resolver", "Read-only")
+    Rel(cblog, teamsyaml, "Reads team.members via Team Context Resolver", "Read-only")
+```
