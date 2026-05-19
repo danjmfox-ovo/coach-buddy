@@ -240,6 +240,36 @@ jobs:
     validated: true
     note: "Grounded in ADR-012 (2026-05-19). Real-world confirmation: ~/teams/advisor-connect manually migrated to root layout. Primary job anchor for cb-root-layout feature."
 
+  - id: ceremony-aware-engagement
+    title: "Work from a single team-topology file when coaching a team that also uses calendar-magick"
+    job_story: >
+      When I am running an ongoing coaching engagement with a team that also uses
+      calendar-magick to manage their ceremony schedule,
+      I want my coaching tools to read team structure and sprint cadence from the
+      teams.yaml file I already maintain for calendar-magick,
+      so I don't have to duplicate member, role, and sprint data in a separate coaching file
+      and keep both copies in sync as the team changes.
+    dimensions:
+      functional: "Link config.json to teams.yaml; read sprint cadence for snapshot headers; pre-fill cb-init from detected teams.yaml"
+      emotional: "Feel joined-up — two tools, one team definition; nothing to keep in sync"
+      social: "A coherent toolkit: calendar-magick and coach-buddy working from the same source rather than two siloed configs"
+    four_forces:
+      push: "Maintaining overlapping team data in two files; updating roster in calendar-magick AND in config.json when someone joins; board snapshots show calendar dates with no sprint context"
+      pull: "One teams.yaml update propagates to both tools; snapshot headers read 'Day 4 of Sprint 8 (week 2/2)' rather than just a date; cb-init pre-fills from existing teams.yaml"
+      anxiety: "Integration forces calendar-magick's schema onto coaches who don't use it; breaking changes to existing engagements that have no teams.yaml; feature adds complexity for the simple case"
+      habit: "Manually keeps config.json and teams.yaml in sync; tolerates the duplication as the price of using two tools; calculates sprint day mentally from the sprint start date"
+    opportunity:
+      importance: medium
+      current_satisfaction: very-low
+      score: 6.5
+      rationale: >
+        Relevant only to coaches who use both tools together — a niche that will grow
+        as calendar-magick matures. Current satisfaction is very-low (zero integration today).
+        Importance is medium because the duplication pain is real but tolerable.
+        Enabling job for richer board snapshots (J8) and faster cb-init setup (J9).
+    validated: false
+    note: "Emerged from pairing observation (2026-05-19). calendar-magick teams.yaml and coach-buddy config.json have overlapping team-topology data."
+
 tension_note: >
   J1 vs J2: The two coaching experience jobs want different orientations.
   J1 (thinking-partner) wants the tool to follow — serve the situation, not introduce new material.
