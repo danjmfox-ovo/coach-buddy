@@ -1,6 +1,6 @@
 {
   "name": "coach-buddy",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Thinking partner for Agile coaches — install into Claude Code, Cursor, or use in a Claude Chat Project",
   "type": "module",
   "bin": {

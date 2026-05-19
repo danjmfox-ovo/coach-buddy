@@ -23,7 +23,7 @@ npm publish --access public
 
 - Test live: `npx coach-buddy` in a project with `.claude/` present
 - Update CHANGELOG if any last-minute fixes landed during pre-publish checks
-- Tag the release: `git tag v1.7.0 && git push --tags`
+- Tag the release: `git tag v$(node -p "require('./package.json').version") && git push --tags`
 
 ## Plugin build (CoWork)
 

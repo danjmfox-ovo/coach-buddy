@@ -1,6 +1,18 @@
 # Changelog
 
-## v1.8 (2026-05-15)
+## v1.9.0 (2026-05-19)
+
+### Added
+- **cb-init `--root` flag**: scaffolds engagement files at the current working directory instead of `engagements/<slug>/`. Designed for CoWork projects where the directory is the engagement. Includes overwrite guard (schema-match on `config.json`) and a `COACHING_LOG.md` collision warning.
+- **Engagement Path Resolver**: shared detection pattern embedded in `cb-log`, `cb-retro`, `cb-snapshot`, `cb-validate`, and `coach-buddy`. Checks for `config.json` with `engagement.slug` at project root before falling back to `engagements/<slug>/`. Slug disambiguation bypassed in root layout.
+- **coach-buddy `## Engagement context (optional)`**: new section that silently loads `CONTEXT.md`, recent `COACHING_LOG.md` entries, and the latest snapshot when an engagement exists. No error if absent.
+
+### Architecture
+- **ADR-012**: documents the `--root` flag design, schema-match detection anchor, and Engagement Path Resolver shared pattern. Extends ADR-010 (engagement context layer).
+
+---
+
+## v1.8.0 (2026-05-15)
 
 ### Added
 - **cb-validate** (`skills/cb-validate/SKILL.md`): new skill that closes the hypothesis-validation loop in `COACHING_LOG.md`. Reads all logged hypotheses, groups by age (>14d / 7-14d / <7d), leads an interactive validation review, and writes `**Validation**: confirmed|disconfirmed|deferred ({date})` in-place. Surfaces advisory-mode pattern note when ≥2 entries were logged in that mode. (Slice 01)
