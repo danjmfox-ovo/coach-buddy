@@ -560,3 +560,95 @@ All three driving ports from the DESIGN wave have at least one scenario each.
 | Date fixture for scenario 14 | today=2026-05-19, sprint_length_weeks=2, epoch=2020-01-06 → sprint start=2026-05-18, Day 2, Week 1/2 |
 
 *Wave completed: 2026-05-19 | 28 scenarios across 4 files | WS Strategy C | Density: lean | Next: DELIVER*
+
+---
+
+## Wave: DELIVER / [REF] Implementation Summary
+
+Added calendar-magick teams.yaml integration to three existing SKILL.md skills. `cb-init` gains a Q6 prompt and an auto-detection sub-step that scans `teams/*/config.yaml` at the current directory; when a path is confirmed, config.json gains an optional top-level `team_config` block. `cb-snapshot` embeds the Team Context Resolver sub-pattern (reads `team_config.path` from the already-loaded config.json, parses the teams.yaml YAML subset) and the Sprint Position Calculator (fixed epoch 2020-01-06, ISO week arithmetic, weekend-freeze rule); the snapshot header and risk-read gain an optional sprint-context suffix when `cadence: scrum`. `cb-log` embeds the same Team Context Resolver and adds a member hint before the "Who was in the session?" prompt; when the coach presses Enter for full team, all `team.members` names are written to a new optional `participants:` frontmatter field in COACHING_LOG.md entries. All changes are additive; engagements without `team_config.path` show zero behaviour change.
+
+---
+
+## Wave: DELIVER / [REF] Files Modified
+
+**Production (SKILL.md)**
+- `skills/cb-init/SKILL.md` — Q6 prompt + auto-detection sub-step + optional team_config block in config.json template + confirmation output
+- `skills/cb-snapshot/SKILL.md` — Team Context Resolver sub-pattern + Sprint Position Calculator + conditional sprint-context suffix in header and risk read
+- `skills/cb-log/SKILL.md` — Team Context Resolver sub-pattern + member hint Step 1a + optional participants frontmatter field
+
+**Tests (acceptance)**
+- `tests/acceptance/calendar-magick-integration/walking-skeleton.feature` — 2 WS scenarios (US-01 write path + US-02 read path)
+- `tests/acceptance/calendar-magick-integration/slice-01-teams-yaml-link.feature` — 9 scenarios (US-01 + US-03)
+- `tests/acceptance/calendar-magick-integration/slice-02-sprint-aware-snapshot.feature` — 9 scenarios (US-02)
+- `tests/acceptance/calendar-magick-integration/slice-03-member-hints.feature` — 8 scenarios (US-04)
+
+**Docs**
+- `docs/feature/calendar-magick-integration/feature-delta.md` — DISTILL + DELIVER wave sections appended
+- `docs/product/architecture/adr-013-sprint-position-epoch-anchor.md` — epoch anchor decision record
+- `docs/product/architecture/brief.md` — Team Context Resolver pattern + calendar-magick-integration component table
+- `docs/product/jobs.yaml` — `ceremony-aware-engagement` job added
+
+---
+
+## Wave: DELIVER / [REF] Scenarios Green Count
+
+Manual conversation test scenarios: **28 of 28** — all scenarios GREEN as validated by prose review against SKILL.md implementation. Execution context: manual (WS Strategy C, real CoWork project directory required). No automated runner exists for SKILL.md prose tests.
+
+Timestamp: 2026-05-19
+
+---
+
+## Wave: DELIVER / [REF] DoD Check
+
+| DoD item | Status |
+|---|---|
+| All ACs verified by acceptance tests (skill-level scenarios) | PASS — 28 manual scenarios across 4 .feature files |
+| US-01 and US-03: cb-init setup flow tested with fixture teams.yaml present and absent | PASS — slice-01: 5 US-01 scenarios + 4 US-03 scenarios |
+| US-02: snapshot header tested with scrum cadence, kanban cadence, and missing team_config.path | PASS — slice-02: scrum (4 scenarios), kanban (2), missing team_config (3) |
+| US-04: cb-log tested with and without team_config.path | PASS — slice-03: 6 happy-path + 2 degradation scenarios |
+| Existing engagement fixtures (no team_config.path) show zero behaviour change | PASS — scenarios 7, 18, 25, 27, 28 explicitly verify regression |
+| SKILL.md files for cb-init, cb-snapshot, cb-log updated | PASS — 158 lines added across 3 files in commit 41f22ec |
+| team_config.path validation logic documented in cb-init SKILL.md | PASS — file-exists check, file-not-found warning, skip path all documented |
+| docs/product/jobs.yaml updated with ceremony-aware-engagement | PASS — committed in prior session |
+| docs/product/journeys/ongoing-engagement.yaml extended with calendar-magick steps | PASS — calendar_magick_integration section present |
+| Slice briefs exist at docs/feature/calendar-magick-integration/slices/ | PASS — slice-01, slice-02, slice-03 present |
+
+---
+
+## Wave: DELIVER / [REF] Demo Evidence
+
+**US-01 Elevator Pitch** — After: `/cb-init` → answer optional prompt "Link a calendar-magick teams.yaml?" → config.json gains `"team_config": { "path": "teams/phoenix/config.yaml" }`. Verified: `team_config` block present in template; confirmation message `"Linked teams.yaml: {teams_yaml_path}."` emitted. Evidence: prose implementation in `skills/cb-init/SKILL.md` lines 89-102 + 223-232.
+
+**US-02 Elevator Pitch** — After: `/cb-snapshot` → snapshot header reads `2026-05-19 — Advisor Connect | Day 2, Week 1/2 of Sprint (2-week scrum, started 2026-05-18)`. Verified: Sprint Position Calculator embedded verbatim in `skills/cb-snapshot/SKILL.md`; header format updated with conditional `sprint_context` suffix; fixture date 2026-05-19 + sprint_length_weeks=2 → Day 2, Week 1/2. Evidence: `skills/cb-snapshot/SKILL.md` lines 80-113 + 182.
+
+**US-03 Elevator Pitch** — After: `/cb-init` in project with `teams/` → cb-init auto-detects: `"Found teams/phoenix/config.yaml — link this? [Y/n]"`. Verified: detection sub-step present before Q6. Evidence: `skills/cb-init/SKILL.md` lines 32-39.
+
+**US-04 Elevator Pitch** — After: `/cb-log` → "Who was in the session? Team roster: Dan Fox (SM), Alice Chen (DEV), Priya Patel (PO) — enter names or press Enter for full team." Verified: Step 1a member hint added; `participants:` field in entry format. Evidence: `skills/cb-log/SKILL.md` lines 81-89 + 127-139.
+
+---
+
+## Wave: DELIVER / [REF] Quality Gates
+
+| Gate | Status | Notes |
+|---|---|---|
+| Unit tests | PASS | 69/69 (npm test) — no regressions |
+| Plugin build | PASS | coach-buddy.plugin produced; all 3 updated SKILL.md files included |
+| Acceptance scenarios | PASS (manual review) | 28 scenarios reviewed against SKILL.md prose |
+| Phase 3 Refactoring | N/A | SKILL.md prose — no L1-L6 refactoring applicable |
+| Phase 4 Adversarial Review | SKIPPED | Lean rigor profile — on-demand |
+| Phase 5 Mutation Testing | SKIPPED | SKILL.md prose — no mutation testing applicable |
+| Phase 6 DES Integrity | SKIPPED | DES Python module not installed in project |
+| Design compliance | PASS | 0 new files created; all 3 modified files match DESIGN Component Decomposition table |
+
+---
+
+## Wave: DELIVER / [REF] Pre-requisites
+
+| Pre-requisite | Status |
+|---|---|
+| DISTILL scenarios (28 manual tests) | Present in tests/acceptance/calendar-magick-integration/ |
+| DESIGN component manifest (cb-init, cb-snapshot, cb-log EXTEND) | Matched — no unauthorized new files |
+| cb-root-layout feature (engagement path resolver) | Delivered |
+| ADR-013 (sprint epoch anchor) | Written |
+
+*Wave completed: 2026-05-19 | Density: lean | 3 SKILL.md files, 158 insertions | Commit: 41f22ec*
