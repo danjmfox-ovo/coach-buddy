@@ -1,0 +1,231 @@
+schema_version: 1
+
+journey:
+  name: "Plugin Release"
+  goal: "Publish coach-buddy.plugin to GitHub Releases so anyone can download and install in CoWork without cloning the repo"
+  persona: "Dan Fox — coach-buddy maintainer (solo maintainer, familiar with git tag convention, uses GitHub CLI)"
+
+  emotional_arc:
+    start: "Confident — familiar ritual, tag convention already established"
+    middle: "Alert — version consistency must be verified before publishing"
+    end: "Satisfied — clean release URL in hand, shareable with any CoWork user"
+
+steps:
+  - id: 1
+    name: "Pre-release version check"
+    command: "npm run check:version"
+
+    tui_mockup: |
+      +-- Step 1: Version Alignment Check -------------------------+
+      | $ npm run check:version                                     |
+      |                                                             |
+      |   package.json          ${VERSION}   OK                    |
+      |   plugin.json           ${VERSION}   OK                    |
+      |   SKILL.md frontmatter  ${VERSION}   OK                    |
+      |   CHANGELOG.md heading  ${VERSION}   OK                    |
+      |                                                             |
+      |   All versions consistent. Ready to release v${VERSION}.   |
+      +-- ${VERSION} source: package.json -------------------------+
+
+    shared_artifacts:
+      - name: "VERSION"
+        source: "package.json .version field"
+        displayed_as: "${VERSION}"
+        consumers:
+          - "plugins/coach-buddy/.claude-plugin/plugin.json .version"
+          - "plugins/coach-buddy/skills/coach-buddy/SKILL.md frontmatter version"
+          - "CHANGELOG.md top-most heading"
+          - "git tag name (v${VERSION})"
+          - "GitHub Release title"
+          - "GitHub Release asset download URL"
+
+    emotional_state:
+      entry: "Confident — starting familiar release flow"
+      exit: "Confirmed ready — all sources aligned, safe to proceed"
+
+    integration_checkpoint: |
+      All four version sources (package.json, plugin.json, SKILL.md frontmatter,
+      CHANGELOG.md heading) must agree before step 2 runs. Script exits non-zero
+      and names the offending file on mismatch.
+
+    failure_modes:
+      - "package.json and plugin.json versions differ (currently the case: 1.6.0 vs 1.7.0)"
+      - "CHANGELOG.md missing entry for target version"
+      - "SKILL.md frontmatter version not updated after npm version bump"
+
+    gherkin: |
+      Scenario: All version sources aligned before release
+        Given Dan has run npm version to bump to 1.7.0
+        And all version sources have been updated
+        When Dan runs npm run check:version
+        Then the script reports all four sources as consistent
+        And exits with code 0
+
+      Scenario: Version mismatch blocks release
+        Given package.json is at 1.6.0 and plugin.json is at 1.7.0
+        When Dan runs npm run check:version
+        Then the script reports which file is misaligned
+        And exits with a non-zero code
+        And suggests the command to fix the mismatch
+
+  - id: 2
+    name: "Build plugin"
+    command: "npm run build:plugin"
+
+    tui_mockup: |
+      +-- Step 2: Build Plugin ----------------------------------------+
+      | $ npm run build:plugin                                           |
+      |                                                                  |
+      |   Packaging 5 skills from plugins/coach-buddy/                  |
+      |   Validating plugin.json schema...                              |
+      |   Running: claude plugin validate                               |
+      |                                                                  |
+      |   coach-buddy.plugin ready (${FILE_SIZE_KB}kb)                  |
+      +-- artifact: ./coach-buddy.plugin --------------------------------+
+
+    shared_artifacts:
+      - name: "PLUGIN_FILE"
+        source: "npm run build:plugin output"
+        displayed_as: "./coach-buddy.plugin"
+        consumers:
+          - "gh release create attachment"
+          - "GitHub Release asset download URL"
+          - "README CoWork install section"
+
+    emotional_state:
+      entry: "Methodical — familiar step already in PUBLISHING.md"
+      exit: "Ready — artifact exists at repo root"
+
+    integration_checkpoint: |
+      coach-buddy.plugin must exist at repo root after this step.
+      claude plugin validate must have exited 0.
+
+    failure_modes:
+      - "claude plugin validate fails (schema change or missing field)"
+      - "zip command fails (missing dependency or disk space)"
+      - "plugin.json missing required skills field"
+
+    gherkin: |
+      Scenario: Plugin built and validated successfully
+        Given the plugins/coach-buddy directory contains all five skills
+        When Dan runs npm run build:plugin
+        Then coach-buddy.plugin is created at the repo root
+        And claude plugin validate confirms the schema is valid
+
+      Scenario: Build blocked when schema validation fails
+        Given plugin.json is missing a required field
+        When Dan runs npm run build:plugin
+        Then the script prints the validation error
+        And does not produce coach-buddy.plugin
+        And exits with a non-zero code
+
+  - id: 3
+    name: "Create GitHub Release"
+    command: "gh release create v${VERSION} --title 'v${VERSION}' --notes-file RELEASE_NOTES.md coach-buddy.plugin"
+
+    tui_mockup: |
+      +-- Step 3: GitHub Release -----------------------------------+
+      | $ gh release create v${VERSION}                            |
+      |     --title "v${VERSION}"                                  |
+      |     --notes-file RELEASE_NOTES.md                          |
+      |     coach-buddy.plugin                                      |
+      |                                                             |
+      |   Creating release v${VERSION}...                          |
+      |   Uploading coach-buddy.plugin...                          |
+      |                                                             |
+      |   https://github.com/danjmfox-ovo/coach-buddy/            |
+      |   releases/tag/v${VERSION}                                 |
+      +-------------------------------------------------------------+
+
+    shared_artifacts:
+      - name: "RELEASE_URL"
+        source: "GitHub Releases API response"
+        displayed_as: "https://github.com/danjmfox-ovo/coach-buddy/releases/tag/v${VERSION}"
+        consumers:
+          - "README CoWork install section"
+          - "PUBLISHING.md after-publish checklist"
+
+    emotional_state:
+      entry: "Purposeful — one command creates tag + release + attaches artifact"
+      exit: "Accomplished — release URL exists and is shareable"
+
+    integration_checkpoint: |
+      GitHub Release must exist with coach-buddy.plugin attached as an asset.
+      A tag-only release (no asset) is not sufficient.
+
+    failure_modes:
+      - "gh CLI not authenticated (gh auth login required)"
+      - "tag already exists (release already created for this version)"
+      - "coach-buddy.plugin not found at repo root (step 2 incomplete)"
+      - "GitHub API rate limit or network error"
+
+    gherkin: |
+      Scenario: Release created with plugin artifact attached
+        Given Dan has built coach-buddy.plugin at the repo root
+        And the version is 1.7.0 in all sources
+        And Dan is authenticated with gh CLI
+        When Dan runs gh release create v1.7.0 with coach-buddy.plugin attached
+        Then a GitHub Release exists at the v1.7.0 tag
+        And coach-buddy.plugin is downloadable from the release assets
+
+      Scenario: Release creation fails when gh is not authenticated
+        Given Dan has not run gh auth login
+        When Dan runs gh release create
+        Then the CLI prints an authentication error
+        And suggests running gh auth login
+
+  - id: 4
+    name: "Verify download and update README"
+    command: "curl -L -o /tmp/test.plugin <download-url> && unzip -l /tmp/test.plugin"
+
+    tui_mockup: |
+      +-- Step 4: Verify Download ----------------------------------+
+      | $ curl -L -o /tmp/test.plugin <ASSET_URL>                  |
+      | $ unzip -l /tmp/test.plugin | head -5                      |
+      |                                                             |
+      |   skills/coach-buddy/SKILL.md                              |
+      |   .claude-plugin/plugin.json                               |
+      |   ... (other skill files)                                  |
+      |                                                             |
+      |   Download verified. Update README with release URL.       |
+      +-------------------------------------------------------------+
+
+    shared_artifacts:
+      - name: "ASSET_DOWNLOAD_URL"
+        source: "GitHub Release asset URL (constructed from RELEASE_URL + asset filename)"
+        displayed_as: "https://github.com/danjmfox-ovo/coach-buddy/releases/download/v${VERSION}/coach-buddy.plugin"
+        consumers:
+          - "README CoWork install section"
+
+    emotional_state:
+      entry: "Verifying — trust but confirm"
+      exit: "Satisfied — the loop is closed; any CoWork user can now install"
+
+    integration_checkpoint: |
+      Download URL must resolve to a valid zip containing skills/ and .claude-plugin/plugin.json.
+
+    failure_modes:
+      - "Download URL returns 404 (asset not attached, only tag exists)"
+      - "Zip contents do not include expected skill files (wrong plugin packaged)"
+
+    gherkin: |
+      Scenario: Published plugin is downloadable and structurally valid
+        Given a GitHub Release exists at v1.7.0 with coach-buddy.plugin attached
+        When a user downloads the asset from the release URL
+        Then the downloaded file is a valid zip
+        And it contains skills/coach-buddy/SKILL.md
+        And it contains .claude-plugin/plugin.json with version 1.7.0
+
+integration_validation:
+  shared_artifact_consistency:
+    - artifact: "VERSION"
+      must_match_across: [1, 2, 3, 4]
+      failure_message: "Version mismatch between package.json, plugin.json, SKILL.md, CHANGELOG.md, and git tag. Run check:version before release."
+    - artifact: "PLUGIN_FILE"
+      must_match_across: [2, 3, 4]
+      failure_message: "Plugin file attached to release may not match the locally built artifact. Rebuild before creating release."
+
+changelog:
+  - date: "2026-05-14"
+    feature: "coach-buddy-plugin-distribution"
+    change: "Initial journey schema — manual GitHub Release workflow (Slice 1)"
