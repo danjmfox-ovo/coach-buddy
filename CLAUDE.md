@@ -1,6 +1,6 @@
 # coach-buddy
 
-Claude Code skill plugin for Agile Coaches. Skills live in `skills/`, plugin manifest in `coach-buddy.plugin`, tests in `tests/` (Vitest).
+Claude Code skill plugin for Agile Coaches. Skills live in `skills/`, tests in `tests/` (Vitest). `coach-buddy.plugin` is the built zip artifact — not the manifest.
 
 ## Structure
 
@@ -20,6 +20,14 @@ Claude Code skill plugin for Agile Coaches. Skills live in `skills/`, plugin man
 - `docs/product/vision.md` — does not exist
 - `docs/project-brief.md` — does not exist
 - `docs/stakeholders.yaml` — does not exist
+
+## Plugin pipeline
+
+- Plugin manifest: `plugins/coach-buddy/.claude-plugin/plugin.json` — not the zip artifact
+- `plugins/coach-buddy/skills/` is a **manually maintained fork** of `skills/` and drifts — run `diff -r plugins/coach-buddy/skills skills --exclude=".DS_Store"` to detect skew before a release
+- Frontmatter format differs legitimately: root `skills/` use `metadata: { user-invocable: true }` (Claude Code convention); plugin skills need `user-invocable: true` at top level (CoWork rejects nesting)
+- `npm run check:version` does NOT validate `plugins/coach-buddy/.claude-plugin/plugin.json` version — bump it manually alongside `package.json`
+- `plugins/coach-buddy/README.md` is not rendered by CoWork; replace with a one-line redirect if editing
 
 ## CI
 
