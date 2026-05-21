@@ -270,6 +270,30 @@ jobs:
     validated: false
     note: "Emerged from pairing observation (2026-05-19). calendar-magick teams.yaml and coach-buddy config.json have overlapping team-topology data."
 
+  - id: reliable-log-capture
+    title: "Trust that log entries are consistent regardless of which session wrote them"
+    job_story: >
+      When I review my coaching log or update an entry from a different session,
+      I want every entry to follow the same format,
+      so I can read, search, and update my log without encountering formatting
+      inconsistencies introduced by different LLM sessions.
+    dimensions:
+      functional: "Consistent entry format across sessions; reliable --update targeting; searchable, parseable log history"
+      emotional: "Feel confident that the log is a trustworthy record; not anxious about formatting drift between sessions"
+      social: "Maintain a professional, consistent coaching record that reflects care and discipline"
+    four_forces:
+      push: "Different sessions write entries with different blank lines, capitalisation, or placeholder text; --update fails or targets the wrong line when format varies; coach loses trust in the tool after encountering inconsistency"
+      pull: "A log that always looks the same regardless of which session wrote it; --update that always finds and replaces the right field"
+      anxiety: "Stricter format rules might make the skill inflexible or break edge cases; existing entries might not match the new canonical form"
+      habit: "Trusts the LLM to produce consistent output without verifying; lives with occasional formatting inconsistencies"
+    opportunity:
+      importance: medium
+      current_satisfaction: low
+      score: 6.5
+      rationale: "Real pain for coaches who use --update or review historical entries across sessions. Lower urgency than core coaching-experience jobs but directly affects log reliability. Enabling quality for structured-observation-capture (J7)."
+    validated: false
+    note: "Emerged from cb-log-deterministic-writes feature work (2026-05-20). Enabling job for reliable --update and consistent log review."
+
 tension_note: >
   J1 vs J2: The two coaching experience jobs want different orientations.
   J1 (thinking-partner) wants the tool to follow — serve the situation, not introduce new material.
