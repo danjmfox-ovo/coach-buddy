@@ -13,6 +13,7 @@ Claude Code skill plugin for Agile Coaches. Skills live in `skills/`, tests in `
 - `docs/product/jobs.yaml` — SSOT for validated Jobs-to-be-Done
 - `docs/product/journeys/`, `docs/product/personas/` — SSOT journey and persona files
 - `docs/product/architecture/` — ADRs and architecture briefs live here (not `docs/adrs/`); nWave destination map default does not apply
+- `tests/acceptance/<feature-id>/` — manual conversation tests (Gherkin `.feature` files, WS Strategy C); no automated runner — executed in a real CoWork project via Claude Code
 - No `src/` directory — this is a plugin project, not a Node app
 
 ## Absent SSOT files (don't look for these)
@@ -23,11 +24,10 @@ Claude Code skill plugin for Agile Coaches. Skills live in `skills/`, tests in `
 
 ## Plugin pipeline
 
-- Plugin manifest: `plugins/coach-buddy/.claude-plugin/plugin.json` — not the zip artifact
-- `plugins/coach-buddy/skills/` is a **manually maintained fork** of `skills/` and drifts — run `diff -r plugins/coach-buddy/skills skills --exclude=".DS_Store"` to detect skew before a release
-- Frontmatter format differs legitimately: root `skills/` use `metadata: { user-invocable: true }` (Claude Code convention); plugin skills need `user-invocable: true` at top level (CoWork rejects nesting)
-- `npm run check:version` does NOT validate `plugins/coach-buddy/.claude-plugin/plugin.json` version — bump it manually alongside `package.json`
-- `plugins/coach-buddy/README.md` is not rendered by CoWork; replace with a one-line redirect if editing
+- Plugin source manifest: `plugin/plugin.json` (repo root) — the zip `coach-buddy.plugin` is build output, not a manifest
+- `npm run build:plugin` syncs `skills/` → `$TMPDIR/coach-buddy-plugin-build/` (temp dir, never tracked) → validates → zips → copies `coach-buddy.plugin` to repo root; `PLUGIN_BUILD_DIR` env var overrides the temp path
+- `npm run check:version` validates `package.json` vs `plugin/plugin.json` vs `skills/coach-buddy/SKILL.md` frontmatter vs `CHANGELOG.md`
+- Frontmatter transform is automatic: `sync-skills.js` promotes `metadata.user-invocable` and `metadata.argument-hint` to top-level when writing to the build dir (CoWork requires top-level; Claude Code convention uses nested)
 
 ## CI
 
@@ -49,3 +49,14 @@ Claude Code skill plugin for Agile Coaches. Skills live in `skills/`, tests in `
 - `nw-finalize` pre-dispatch gate: if execution-log.json is empty, verify completion via `roadmap.json` `validation.status = "approved"` — do not block finalization
 - SKILL.md features have no `design/` or `distill/` subdirectories — all wave content is embedded in `feature-delta.md`; `nw-finalize` Phase B will find nothing to migrate
 - `.nwave/des-config.json` has no `rigor` key — all rigor defaults apply (lean, on-demand gates)
+- **DES CLI requires PYTHONPATH prefix** (pipx install doesn't add `des` to `sys.path`): `PYTHONPATH=~/.local/pipx/venvs/nwave-ai/lib/python3.13/site-packages/nWave/lib/python des-init-log ...`
+- `des-verify-integrity` is broken in pipx context — `TDDSchemaLoader` resolves schema path incorrectly (looks in `nWave/lib/nWave/templates/`, actual location is `nWave/templates/`); skip Phase 6 until upstream fix
+
+## Release checklist (recurring drift risks)
+
+- `plugins/coach-buddy/README.md` — update version and skills table on every release; does not auto-sync with `package.json`
+- `docs/product/architecture/brief.md` — new ADRs must be manually added to the primary ADR index table (not just written as files); easy to miss
+
+## Reference projects
+
+- CoWork engagement root-layout: `~/projects/ovo/teams/advisor-connect` — live reference for `cb-init --root` and Engagement Path Resolver behaviour
