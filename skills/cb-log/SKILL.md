@@ -100,7 +100,7 @@ If `--mode` was not passed, default to `thinking-partner`. Do not ask.
 
 **Step 2 — Generate entry ID**
 
-Read the current `COACHING_LOG.md`. Count any existing entries for today (YYYY-MM-DD). Assign ID: `{YYYY-MM-DD}-{NNN}` where NNN is a zero-padded sequence starting at 001. If today has no entries, use 001.
+Read the current `COACHING_LOG.md`. Count today's entries by scanning every line for the pattern `^id: {YYYY-MM-DD}-\d{3}$`. Let N = the number of matching lines. Assign ID: `{YYYY-MM-DD}-{NNN}` where NNN = N+1, zero-padded to 3 digits. If N = 0, the ID is `{today}-001`.
 
 **Step 3 — Ask whether to fill full entry or quick capture**
 
@@ -117,14 +117,17 @@ Ask: "Want to fill in the full entry now, or capture quickly and refine later?"
 
 Read the current file. Insert the new entry immediately after the `<!-- Entries below this line -->` comment. Do not append — entries are most-recent-first.
 
-Entry format:
+**Prepend position rules:**
+- Leave exactly one blank line between the `<!-- Entries below this line -->` comment line and the opening `---` of the new entry.
+- Leave exactly one blank line after the closing `---` of the new entry before any subsequent content (next entry or end of file).
+
+**Canonical template — without participants** (use when no participants were captured in Step 1a):
 
 ```markdown
 ---
-id: {id}
+id: {YYYY-MM-DD}-{NNN}
 date: {YYYY-MM-DD}
 mode: {mode}
-participants: {comma-separated names — omit this line entirely when no participants were captured}
 
 **Observed**: {observed}
 **Context**: {context}
@@ -136,7 +139,40 @@ participants: {comma-separated names — omit this line entirely when no partici
 ---
 ```
 
-The `participants:` line is optional. Write it only when participants were captured in Step 1a. When omitted, the entry remains valid — existing entries without `participants:` are unaffected.
+**Canonical template — with participants** (use when participants were captured in Step 1a):
+
+```markdown
+---
+id: {YYYY-MM-DD}-{NNN}
+date: {YYYY-MM-DD}
+mode: {mode}
+participants: {comma-separated names}
+
+**Observed**: {observed}
+**Context**: {context}
+**Pattern/Signal**: {pattern or "(to fill)"}
+**Hypothesis**: {hypothesis or "(to fill)"}
+**Intervention**: {intervention or "(none yet)"}
+**Follow-up**: {follow_up or "(to fill)"}
+
+---
+```
+
+**Blank-line rules (canonical — no deviation):**
+- No blank lines between frontmatter fields (`id:`, `date:`, `mode:`, `participants:` are consecutive lines).
+- In the without-participants template: exactly one blank line between `mode:` and `**Observed**`.
+- In the with-participants template: `participants:` appears on the line immediately after `mode:` with no blank line between them; exactly one blank line between `participants:` and `**Observed**`.
+- No blank lines between body fields (`**Observed**` through `**Follow-up**`).
+- Exactly one blank line between `**Follow-up**` and the closing `---`.
+
+**Placeholder strings (canonical — exact, case-sensitive):**
+- Unfilled fields: `(to fill)`
+- Unfilled intervention: `(none yet)`
+
+**Field labels (canonical — exact):**
+`**Observed**`, `**Context**`, `**Pattern/Signal**`, `**Hypothesis**`, `**Intervention**`, `**Follow-up**`
+
+Existing entries without `participants:` are unaffected by this field's optionality.
 
 **Step 5 — Confirm**
 
@@ -152,10 +188,21 @@ Invoked as: `/cb-log --update <id> <field> <value>`
 
 Valid field names: `observed`, `context`, `pattern`, `hypothesis`, `intervention`, `followup`
 
+**CLI field → file label mapping:**
+
+| CLI field | File label |
+|-----------|------------|
+| `observed` | `**Observed**` |
+| `context` | `**Context**` |
+| `pattern` | `**Pattern/Signal**` |
+| `hypothesis` | `**Hypothesis**` |
+| `intervention` | `**Intervention**` |
+| `followup` | `**Follow-up**` |
+
 Steps:
 1. Read `COACHING_LOG.md`.
-2. Find the entry with matching `id:` in the frontmatter.
-3. Update the specified field's value in place. Do not change any other field.
+2. Find the entry block with a line matching `^id: {id}$` in its frontmatter.
+3. Within that entry block, find the line beginning with `{label}: ` (where `{label}` is the file label from the mapping above). Replace the entire line with `{label}: {new_value}`. The new value is single-line. All other lines in the file are preserved byte-for-byte unchanged.
 4. Write the updated file.
 5. Print: `Entry {id} updated — {field} revised.`
 

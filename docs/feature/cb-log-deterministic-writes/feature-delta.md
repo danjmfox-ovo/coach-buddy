@@ -190,3 +190,72 @@ None — no prior DISCOVER wave. This feature starts at DISCUSS.
 ## Wave: DISCUSS / [REF] Expansion Menu
 
 No triggers fired (1 bounded context, 1 technology, 1 persona, no regulatory terms, WS strategy A). Lean output — no expansions suggested.
+
+---
+
+> Wave: DELIVER | Date: 2026-05-21 | Density: lean
+
+---
+
+## Wave: DELIVER / [REF] Implementation Summary
+
+Updated `skills/cb-log/SKILL.md` with deterministic entry format rules across two slices. Slice 01 replaced the vague ID-counting rule with regex-based scanning (`^id: DATE-\d{3}$`) and split the single optional-field template into two canonical templates (with-participants / without-participants) with explicit blank-line rules, locked placeholder strings, and locked field labels. Slice 02 added an explicit CLI-to-label mapping table and a precise single-line replacement mechanic to the Mode 2 update path. No UX changes, no new fields, backward-compatible with existing log entries.
+
+---
+
+## Wave: DELIVER / [REF] Files Modified
+
+**Production:**
+- `skills/cb-log/SKILL.md` — Step 2 (ID counting), Step 4 (canonical templates + blank-line rules), Mode 2 (mapping table + replacement mechanic)
+
+**Tests:** None — WS Strategy A, manual conversation tests only.
+
+**Docs:**
+- `docs/feature/cb-log-deterministic-writes/feature-delta.md` — DELIVER wave sections appended
+- `docs/product/jobs.yaml` — `reliable-log-capture` job added (DISCUSS wave)
+
+---
+
+## Wave: DELIVER / [REF] Scenarios Green Count
+
+8 of 8 acceptance criteria satisfied (manual review against prose spec):
+- AC1.1–AC1.8 (Slice 01): ID regex counting, two canonical templates, blank-line rules, placeholder lock, label lock
+- AC2.1–AC2.4 (Slice 02): field-update accuracy per mapping, unchanged lines, error message
+
+---
+
+## Wave: DELIVER / [REF] DoD Check
+
+| Item | Status |
+|------|--------|
+| All acceptance criteria satisfied | PASS |
+| No UX regressions (flow, prompts unchanged) | PASS |
+| Existing entries without participants unaffected | PASS |
+| Field labels match canonical set | PASS |
+| Placeholder strings locked (case-sensitive) | PASS |
+| Blank-line rules fully specified (no ambiguity) | PASS |
+| ID counting uses regex pattern (not heuristic) | PASS |
+| Mode 2 mapping table complete (6 fields) | PASS |
+| Mode 2 replacement leaves all other lines unchanged | PASS |
+| Backward-compatible: no migration of existing entries | PASS |
+
+---
+
+## Wave: DELIVER / [REF] Quality Gates
+
+| Gate | Result |
+|------|--------|
+| Slice 01 — canonical templates match AC1.3/AC1.4 | PASS |
+| Slice 01 — prepend position rules match AC1.5/AC1.6 | PASS |
+| Slice 02 — mapping table covers all 6 CLI fields (AC2.3) | PASS |
+| Slice 02 — replacement mechanic is single-line (AC2.1/AC2.2) | PASS |
+| check:version | PASS (1.9.0) |
+| No new dependencies | PASS |
+
+---
+
+## Wave: DELIVER / [REF] Pre-requisites
+
+- DISCUSS wave: `docs/feature/cb-log-deterministic-writes/feature-delta.md` (5 locked decisions D1–D5)
+- Slice briefs: `slices/slice-01-new-entry-determinism.md`, `slices/slice-02-update-determinism.md`
+- Prior cb-log state: participants field (calendar-magick-integration), root-layout support (cb-root-layout)
