@@ -24,17 +24,19 @@ Claude Code skill plugin for Agile Coaches. Skills live in `skills/`, tests in `
 
 ## Plugin pipeline
 
-- Plugin source manifest: `plugin/plugin.json` (repo root) — the zip `coach-buddy.plugin` is build output, not a manifest
-- `npm run build:plugin` syncs `skills/` → `$TMPDIR/coach-buddy-plugin-build/` (temp dir, never tracked) → validates → zips → copies `coach-buddy.plugin` to repo root; `PLUGIN_BUILD_DIR` env var overrides the temp path
-- `npm run check:version` validates `package.json` vs `plugin/plugin.json` vs `skills/coach-buddy/SKILL.md` frontmatter vs `CHANGELOG.md`
-- Frontmatter transform is automatic: `sync-skills.js` promotes `metadata.user-invocable` and `metadata.argument-hint` to top-level when writing to the build dir (CoWork requires top-level; Claude Code convention uses nested)
+- Plugin source: `plugins/coach-buddy/` — skills at `plugins/coach-buddy/skills/`, manifest at `plugins/coach-buddy/.claude-plugin/plugin.json`
+- `coach-buddy.plugin` is gitignored (build artifact) — install from repo root after building, or download from GitHub Releases
+- `npm run build:plugin` — `rm -f` then `cd plugins/coach-buddy && zip -r . ...` → copies to repo root; **`zip` accumulates stale entries if not deleted first** (scripts now delete before zipping)
+- `npm run check:version` validates `package.json` vs `plugins/coach-buddy/.claude-plugin/plugin.json` vs `skills/coach-buddy/SKILL.md` vs `CHANGELOG.md`
+- **Plugin skills are NOT auto-synced** — `plugins/coach-buddy/skills/` must be manually copied from `skills/` before cutting a release; stale plugin skills are a recurring drift risk
 
 ## CI
 
 - Workflow: `Release` (push to main) — check with `gh run list --limit 10`
 - Build script: `build:plugin:ci` — bundles the plugin zip
-- Releases tagged `vX.Y.Z`; each successful run cuts a new version
+- CI triggers on tag push, not on merge to main — a push to main alone does NOT cut a release
 - **Release requires a manual tag:** `git tag vX.Y.Z && git push origin vX.Y.Z` — CI does not auto-tag from a version bump
+- If a tag already exists on origin (e.g. stale failed tag): `git tag -f vX.Y.Z HEAD && git push --force origin vX.Y.Z`
 
 ## nWave
 
@@ -55,7 +57,9 @@ Claude Code skill plugin for Agile Coaches. Skills live in `skills/`, tests in `
 ## Release checklist (recurring drift risks)
 
 - `plugins/coach-buddy/README.md` — update version and skills table on every release; does not auto-sync with `package.json`
+- `plugins/coach-buddy/skills/` — sync all changed skills from `skills/` before tagging; no automation does this
 - `docs/product/architecture/brief.md` — new ADRs must be manually added to the primary ADR index table (not just written as files); easy to miss
+- `CHANGELOG.md` heading must use full semver: `## v1.X.Y` not `## v1.X` — `npm run check:version` validates this
 
 ## Reference projects
 
