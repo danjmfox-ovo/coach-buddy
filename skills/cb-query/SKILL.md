@@ -6,7 +6,7 @@ description: >-
   Use before sessions for a quick orientation, or by a PA agent for structured data with --format json.
 metadata:
   user-invocable: true
-  argument-hint: '[--slug <team-slug>] [--since <ISO-date>] [--format json]'
+  argument-hint: '[--slug TEAM-SLUG] [--since ISO-DATE] [--format json]'
 ---
 
 # cb-query — Engagement Health Query
