@@ -1,0 +1,106 @@
+{
+  "roadmap": {
+    "project_id": "cb-pa-integration",
+    "created_at": "2026-06-03T13:27:48Z",
+    "total_steps": 3
+  },
+  "phases": [
+    {
+      "id": "01",
+      "name": "Slice 01 — cb-log JSON acknowledgement",
+      "steps": [
+        {
+          "id": "01-01",
+          "name": "Extend cb-log SKILL.md with --format json output branch",
+          "criteria": [
+            "/cb-log --slug {slug} --text '...' --format json emits valid JSON with status:ok, entry_id, team, written_to",
+            "entry_id matches YYYY-MM-DD-NNN format with correct sequence number",
+            "--format json absent: existing prose behaviour fully unchanged",
+            "Unknown slug with --format json emits status:error JSON with team and error fields",
+            "Path resolution failure with --format json emits status:error JSON",
+            "Path resolution uses --slug + engagements_root, not cwd (AV-6)"
+          ],
+          "test_file": "tests/acceptance/cb-pa-integration/slice-01-cb-log-json-ack.feature",
+          "scenario_name": "PA calls cb-log with --format json and receives a valid JSON ack",
+          "implementation_notes": "SKILL.md-only step — production artifact is skills/cb-log/SKILL.md. Add a new ## Output format section or conditional branch in the existing output section: when --format json present, emit inline JSON template instead of prose. Preserve all existing write logic, path resolution (Engagement Path Resolver), and entry format unchanged. JSON ack must include: status (ok/error), entry_id (from written entry frontmatter id field), team (from slug), written_to (resolved file path). Error branch: if path resolution fails OR engagement folder not found, emit status:error JSON instead of prose error. EXEMPT FROM PARADIGM: SKILL.md prose — no automated unit tests. Acceptance scenarios in .feature files are the RED gate.",
+          "files_to_modify": [
+            "skills/cb-log/SKILL.md"
+          ],
+          "estimated_hours": 2,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "id": "02",
+      "name": "Slice 02 — cb-query human-readable snapshot",
+      "steps": [
+        {
+          "id": "02-01",
+          "name": "Create cb-query SKILL.md with Extraction Grammar and prose output",
+          "criteria": [
+            "/cb-query {slug} returns readable prose summary with open actions, open/deferred hypotheses, last capture date, last retro date",
+            "Extraction Grammar applied: open actions from RETRO_ACTIONS.md (non-evidenced rows), open hypotheses from COACHING_LOG.md (no Validation or Validation:open/deferred)",
+            "Confirmed and rejected hypotheses NOT listed as open",
+            "--since defaults to 14 days; accepts ISO date override",
+            "Open hypotheses older than --since window still surfaced (D6: openness independent of window)",
+            "No board_tool in config: summary produced without board section, no error shown",
+            "Unknown slug returns clear prose error naming the slug",
+            "Missing --slug with multiple engagements triggers disambiguation prompt",
+            "--slug resolves from engagements_root (legacy and root layout via Engagement Path Resolver)"
+          ],
+          "test_file": "tests/acceptance/cb-pa-integration/slice-02-cb-query-human.feature",
+          "scenario_name": "Coach queries an engagement and receives a readable summary",
+          "implementation_notes": "SKILL.md-only step — CREATE NEW skills/cb-query/SKILL.md. Must include: (1) Engagement Path Resolver verbatim from cb-log (ADR-008 self-containment), (2) Named Extraction Grammar (ADR-014): open_actions = RETRO_ACTIONS.md rows where Evidenced column != 'yes' and Status != 'done'; open_hypotheses = COACHING_LOG.md entries where Validation field absent OR Validation status is 'open' or 'deferred'; confirmed/rejected hypotheses excluded, (3) --since window filtering entries read but NOT closing open hypotheses (D6), (4) prose output sections: Open Retro Actions, Coaching Hypotheses (open + deferred), Last capture date, Last retro date, (5) graceful omission of board section when board_tool absent from config.json. EXEMPT FROM PARADIGM: SKILL.md prose — no automated unit tests.",
+          "files_to_modify": [
+            "skills/cb-query/SKILL.md"
+          ],
+          "estimated_hours": 3,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "id": "03",
+      "name": "Slice 03 — cb-query --format json",
+      "steps": [
+        {
+          "id": "03-01",
+          "name": "Extend cb-query SKILL.md with --format json output branch and degraded path",
+          "criteria": [
+            "/cb-query --slug {slug} --format json emits valid JSON with status:ok and all PA contract fields",
+            "ok response includes: team, open_actions (with description, evidenced boolean), open_hypotheses (with text, status), last_capture (ISO date), last_retro (ISO date or null), wip_aged (array), signal_summary (2-3 sentence engagement-health scope only, DW-2)",
+            "signal_summary contains ONLY engagement-health signals — no calendar/chat/non-engagement-file references",
+            "Board MCP unavailable: status:degraded, wip_aged:[], warnings array populated, all other fields present",
+            "No board_tool in config: status:degraded, wip_aged:[], warnings explains no board tool configured",
+            "Unknown slug: status:error JSON with team and error fields, no other fields",
+            "--format json absent: Slice 02 prose behaviour unchanged",
+            "Board MCP available (@requires_external): wip_aged items contain title and age_days (positive integer)"
+          ],
+          "test_file": "tests/acceptance/cb-pa-integration/slice-03-cb-query-json.feature",
+          "scenario_name": "PA queries an engagement with --format json and receives a valid ok response",
+          "implementation_notes": "SKILL.md-only step — EXTEND skills/cb-query/SKILL.md. Add --format json branch: when present, emit inline JSON template per PA contract schema v1.0.0-draft (DW-3). signal_summary MUST be scoped to engagement-health domain only per DW-2: mention hypothesis age, action evidenced ratio, WIP age — no calendar/chat signals. Degraded path: if board_tool absent from config OR board MCP call fails, set status:degraded, wip_aged:[], add warnings array entry. Error path: if path resolution fails, emit status:error with team and error only (no other fields). Inline JSON schema definition in SKILL.md prose so LLM emits conformant JSON. EXEMPT FROM PARADIGM: SKILL.md prose — no automated unit tests.",
+          "files_to_modify": [
+            "skills/cb-query/SKILL.md"
+          ],
+          "estimated_hours": 2,
+          "dependencies": ["02-01"]
+        }
+      ]
+    }
+  ],
+  "implementation_scope": {
+    "source_directories": [
+      "skills/"
+    ],
+    "test_directories": [
+      "tests/acceptance/cb-pa-integration/"
+    ],
+    "excluded_patterns": []
+  },
+  "validation": {
+    "status": "approved",
+    "reviewer": "orchestrator-lean",
+    "approved_at": "2026-06-03"
+  }
+}

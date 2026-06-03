@@ -6,7 +6,7 @@ description: >-
   Use after any team session, ceremony, or interaction worth tracking.
 metadata:
   user-invocable: true
-  argument-hint: '[observation] [--update [id] [field] [value]] [--mode [value]] [--slug [team-slug]]'
+  argument-hint: '[observation] [--update [id] [field] [value]] [--mode [value]] [--slug [team-slug]] [--format json]'
 ---
 
 # cb-log — Coaching Log Capture
@@ -33,8 +33,13 @@ If `./config.json` is absent or does not contain the engagement schema, look for
 
 **Step 3 — No engagement found**
 
-If neither Step 1 nor Step 2 yields a config, surface:
-> "No engagement found at `./config.json` or `engagements/<slug>/config.json`. Run `/cb-init` to create an engagement, or `/cb-init --root` to scaffold at this location."
+If neither Step 1 nor Step 2 yields a config:
+- If `--format json` was passed, emit the following and stop (do not print prose suggestions):
+  ```json
+  {"status":"error","team":"<value of --slug arg, or 'unknown' if no slug was given>","error":"No engagement found at ./config.json or engagements/<slug>/config.json"}
+  ```
+- Otherwise surface:
+  > "No engagement found at `./config.json` or `engagements/<slug>/config.json`. Run `/cb-init` to create an engagement, or `/cb-init --root` to scaffold at this location."
 
 ## Team Context Resolver
 
@@ -176,7 +181,15 @@ Existing entries without `participants:` are unaffected by this field's optional
 
 **Step 5 — Confirm**
 
-Print: `Entry {id} added to {engagement_path}COACHING_LOG.md`
+If `--format json` was passed, emit the following JSON to the response and stop (no prose):
+
+```json
+{"status":"ok","entry_id":"{id}","team":"{slug}","written_to":"{engagement_path}COACHING_LOG.md"}
+```
+
+Otherwise (no `--format json`): print prose confirmation as before:
+
+`Entry {id} added to {engagement_path}COACHING_LOG.md`
 
 If any fields are `(to fill)`, add: `Run /cb-log --update {id} <field> <value> to refine.`
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.10.0 (2026-06-03)
+
+### Added
+- **cb-query** (`skills/cb-query/SKILL.md`): new skill that retrieves a consolidated engagement health summary. Reads `COACHING_LOG.md` and `RETRO_ACTIONS.md`, applies the Named Extraction Grammar (ADR-014) to surface open retro actions, open/deferred hypotheses, last capture and retro dates. Optional board MCP call for WIP age data with graceful degraded path when unavailable. Human-readable prose output by default.
+- **cb-query `--format json`**: structured JSON output for PA agent consumption. Returns `status: ok` with all PA contract fields (`open_actions`, `open_hypotheses`, `last_capture`, `last_retro`, `wip_aged`, `signal_summary`). `status: degraded` when board MCP absent or unavailable. `status: error` when engagement not found.
+- **cb-log `--format json`**: structured JSON acknowledgement for PA agent write-path confirmation. Returns `{"status":"ok","entry_id":"...","team":"...","written_to":"..."}` on success; `{"status":"error","team":"...","error":"..."}` on path resolution failure. All existing prose behaviour unchanged when flag absent.
+
+### Architecture
+- **ADR-014**: documents the cb-query Named Extraction Grammar — rule-derived field extraction, `signal_summary` scoped to engagement-health domain only (DW-2), and `--since` window semantics (filters entries read; does not close open hypotheses).
+
+---
+
 ## v1.9.0 (2026-05-19)
 
 ### Added

@@ -469,6 +469,7 @@ Epoch anchor: 2020-01-06 (Monday). Sprint cycle index = `floor((today_week_monda
 | ADR | Title | Status |
 |-----|-------|--------|
 | [ADR-013](adr-013-sprint-position-epoch-anchor.md) | Sprint position epoch anchor — deterministic cadence derivation without stored state | Accepted |
+| [ADR-014](adr-014-cb-query-extraction-grammar.md) | cb-query Named Extraction Grammar — scoped signal_summary and rule-derived field extraction | Accepted (shipped v1.10.0) |
 
 ### C4: Container — calendar-magick-integration
 
@@ -501,4 +502,110 @@ C4Container
     Rel(cblog, configjson, "Reads team_config.path via Engagement Path Resolver", "")
     Rel(cbsnapshot, teamsyaml, "Reads cadence + sprint_length_weeks via Team Context Resolver", "Read-only")
     Rel(cblog, teamsyaml, "Reads team.members via Team Context Resolver", "Read-only")
+```
+
+---
+
+## Application Architecture — cb-pa-integration
+
+**Wave**: DESIGN (2026-06-03)
+**Feature**: cb-pa-integration
+**Pattern**: Cutler-pattern extension (ADR-010); structured JSON output ports for agent-to-agent integration
+
+### Summary
+
+Extends `cb-log` with a `--format json` output path and creates a new `cb-query` skill. Together these form the machine-readable interface between coach-buddy (team specialist) and a PA agent (personal coordinator). The PA calls cb-log to confirm writes and cb-query to retrieve engagement health data. Coach-buddy generates summaries scoped to engagement-health domain only (DW-1, DW-2); the PA synthesises across its own sources.
+
+The change surface is SKILL.md prose only. No new files, no new deployment units, no change to COACHING_LOG.md format.
+
+### Component Decomposition
+
+| Component | Change | Key detail |
+|-----------|--------|------------|
+| `cb-log` | EXTEND | Add `--format json` output branch: emits JSON ack on success/error; all other paths unchanged |
+| `cb-query` | CREATE NEW | Read-only skill: reads `COACHING_LOG.md` + `RETRO_ACTIONS.md`; optionally calls board MCP; emits prose (default) or JSON (`--format json`) |
+
+### Driving Ports (Inbound)
+
+| Port | Invoker | Arguments |
+|------|---------|-----------|
+| `/cb-log --format json` | PA agent (write-path confirm) | `--slug`, `--text`, `--format json`; existing args unchanged |
+| `/cb-query {slug}` | Coach (human, readable output) | `--slug`, `--since` (default 14d) |
+| `/cb-query --format json` | PA agent (read-path) | `--slug`, `--format json`, `--since` |
+
+### Driven Ports + Adapters
+
+| Port | Adapter | Behaviour |
+|------|---------|-----------|
+| Engagement Path Resolver | Embedded verbatim in cb-query (ADR-008) | Step 1 root layout → Step 2 legacy layout → Step 3 error; identical to cb-log |
+| `COACHING_LOG.md` reader | LLM file read in cb-query | Reads file; Extraction Grammar applied post-read |
+| `RETRO_ACTIONS.md` reader | LLM file read in cb-query | Reads table; extracts open/evidenced actions |
+| Board MCP adapter | Jira or Linear MCP call in cb-query | Called when `config.json` sets `board_tool`; absent → `wip_aged: []` + `warnings` populated (degraded path) |
+
+### Technology Stack
+
+| Layer | Choice | Rationale |
+|-------|--------|-----------|
+| Runtime | Claude Code / CoWork (LLM skill invocation) | Existing pattern; no change |
+| Skill format | SKILL.md (Cutler-pattern) | All existing skills use this; zero new tooling |
+| Persistence | COACHING_LOG.md, RETRO_ACTIONS.md (markdown) | Existing format; cb-query is read-only |
+| Output serialisation | Inline JSON template in SKILL.md prose | No library needed; LLM emits conformant JSON per embedded schema definition |
+| Board integration | Existing Jira/Linear MCP | Already used by cb-snapshot; cb-query reuses same adapter pattern |
+
+### Reuse Analysis
+
+| Existing Component | File | Overlap | Decision | Justification |
+|---|---|---|---|---|
+| `cb-log` write path | `skills/cb-log/SKILL.md` | US-001 output branch | EXTEND | All write logic, path resolution, and entry format unchanged; only stdout path is new |
+| Engagement Path Resolver | Embedded in cb-log | cb-query needs layout-transparent path resolution | EMBED VERBATIM | ADR-008 self-containment invariant; copy Steps 1–3 prose from cb-log into cb-query |
+| Team Context Resolver | Embedded in cb-log, cb-snapshot | cb-query needs `board_tool` from config.json | PARTIAL REUSE | cb-query reads config.json for `board_tool` only; does not need teams.yaml; resolver simplified to config-read only |
+| `COACHING_LOG.md` entry format | cb-log-deterministic-writes (shipped) | cb-query reads these entries | REUSE (prerequisite) | Deterministic `id: YYYY-MM-DD-NNN` + field-anchor format is the stable substrate for Extraction Grammar |
+| `cb-snapshot` board MCP call | `skills/cb-snapshot/SKILL.md` | cb-query also calls board MCP for WIP age | NOT REUSED | cb-query is a read/summarise skill; board call is inline per self-containment; cb-snapshot not a shared library |
+| `cb-validate` hypothesis reader | `skills/cb-validate/SKILL.md` | Both read hypothesis fields | NOT REUSED | cb-validate writes in-place; cb-query reads and reports; no shared logic path |
+
+### ADR Index Update
+
+| ADR | Title | Status |
+|-----|-------|--------|
+| [ADR-014](adr-014-cb-query-extraction-grammar.md) | cb-query Named Extraction Grammar — scoped signal_summary and rule-derived field extraction | Accepted |
+
+### C4: Container — cb-pa-integration
+
+```mermaid
+C4Container
+    title Coach Buddy — PA Integration (cb-pa-integration)
+
+    Person(coach, "Agile Coach", "Uses cb-query directly for session prep")
+    System_Ext(pa, "PA Agent (cowork-personal-assistant)", "Personal coordinator — aggregates calendar, chat, engagement health; assembles pre-session brief")
+
+    Container_Boundary(claudecode, "Claude Code / CoWork") {
+        Container(cblog, "cb-log", "Skill (SKILL.md)", "Captures Safety-II entries; extended with --format json ack path")
+        Container(cbquery, "cb-query", "Skill (SKILL.md) — NEW", "Reads COACHING_LOG.md + RETRO_ACTIONS.md; applies Extraction Grammar; emits prose or JSON; optionally queries board MCP for WIP age")
+        Container(cbinit, "cb-init", "Skill (SKILL.md)", "Unchanged — scaffolds engagement folder")
+        Container(cbsnapshot, "cb-snapshot", "Skill (SKILL.md)", "Unchanged — writes board snapshots")
+    }
+
+    Container_Boundary(engagementstore, "Engagement Folder (engagements/<slug>/ or ./)") {
+        ContainerDb(configjson, "config.json", "JSON", "Engagement config: board_tool, slug, path")
+        ContainerDb(coachinglog, "COACHING_LOG.md", "Markdown", "Safety-II observations with deterministic entry IDs")
+        ContainerDb(retromd, "RETRO_ACTIONS.md", "Markdown", "Retro action tracker with evidenced column")
+    }
+
+    System_Ext(boardmcp, "Board MCP (Jira / Linear)", "Queried for WIP age data; optional — degraded path when unavailable")
+
+    Rel(coach, cblog, "Captures observation via /cb-log", "After session")
+    Rel(coach, cbquery, "Queries team health via /cb-query {slug}", "Session prep")
+    Rel(pa, cblog, "Confirms write via /cb-log --format json", "Write-path ack")
+    Rel(pa, cbquery, "Retrieves health data via /cb-query --format json", "Read-path")
+
+    Rel(cblog, configjson, "Resolves engagement path via Engagement Path Resolver", "")
+    Rel(cblog, coachinglog, "Prepends entry", "")
+
+    Rel(cbquery, configjson, "Resolves path and reads board_tool config", "")
+    Rel(cbquery, coachinglog, "Reads entries; applies Extraction Grammar", "Read-only")
+    Rel(cbquery, retromd, "Reads action rows; classifies evidenced/open", "Read-only")
+    Rel(cbquery, boardmcp, "Queries WIP age when board_tool configured", "Optional")
+
+    Rel(cbquery, pa, "Returns JSON: status, open_actions, open_hypotheses, wip_aged, signal_summary", "--format json")
+    Rel(cbquery, coach, "Returns readable engagement health summary", "prose output")
 ```
