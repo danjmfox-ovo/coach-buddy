@@ -4,7 +4,7 @@ description: >-
   Thinking partner for Agile coaches working through real situations.
   Situation-focus by default. Framework discovery available on interest signals.
 metadata:
-  version: "1.10.0"
+  version: "1.10.1"
   user-invocable: true
   argument-hint: '[situation description] — describe what you want to think through'
 ---

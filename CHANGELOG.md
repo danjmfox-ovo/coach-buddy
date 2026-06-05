@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.10.1 (2026-06-05)
+
+### Changed
+- **Plugin validator**: replaced vendored `scripts/validate-plugin.js` (4 refuted rules) with `@ovo/cowork-plugin-validator` package (4 empirically confirmed CoWork rules). Build pipeline unchanged — `npm run build:plugin` and `npm run build:plugin:ci` now call the CLI via `npx cowork-plugin-validator --dir <build-dir> --json`.
+
+---
+
 ## v1.10.0 (2026-06-03)
 
 ### Added
